@@ -120,23 +120,11 @@
     <Compile Include="Eqiupment.xaml.cs">
       <DependentUpon>Eqiupment.xaml</DependentUpon>
     </Compile>
-    <Compile Include="frmSetting.xaml.cs">
-      <DependentUpon>frmSetting.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="LoginWindow.xaml.cs">
-      <DependentUpon>LoginWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ManualControlWindow.xaml.cs">
       <DependentUpon>ManualControlWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="LinkSystem.xaml.cs">
-      <DependentUpon>LinkSystem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ReportWindow.xaml.cs">
-      <DependentUpon>ReportWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserSettingWindow.xaml.cs">
       <DependentUpon>UserSettingWindow.xaml</DependentUpon>
@@ -219,27 +207,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="frmSetting.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LoginWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ManualControlWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LinkSystem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ReportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

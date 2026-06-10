@@ -35,9 +35,6 @@
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
                 <RowDefinition Height="10*"/>
                 <RowDefinition Height="1.5*"/>
             </Grid.RowDefinitions>
@@ -77,16 +74,6 @@
             </Grid>
             <Grid Grid.Row="4" Background="#2E4053">
                 <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                       x:Name="btnReport" Click="btnReport_Click">
-                </Button>
-                <md:PackIcon Kind="ChartPie" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" MouseDown="btnReport_Click"/>
-                <TextBlock Text="Report" FontSize="16" Height="20" Foreground="White"
-                           Margin="90,0,0,0" MouseDown="btnReport_Click"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
-            </Grid>
-            <Grid Grid.Row="5" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
                         x:Name="btnControl" Click="btnManualControl_Click">
                 </Button>
                 <md:PackIcon Kind="Apps" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
@@ -95,29 +82,7 @@
                            Margin="90,0,0,0" MouseDown="btnManualControl_Click"/>
                 <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
             </Grid>
-            <Grid Grid.Row="7" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                        x:Name="btnSetting" Click="btnSetting_Click">
-                </Button>
-                <md:PackIcon Kind="CogSyncOutline" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" MouseDown="btnSetting_Click"/>
-                <TextBlock Text="Setting" FontSize="16" Height="20" Foreground="White"
-                           Margin="90,0,0,0" MouseDown="btnSetting_Click"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
-            </Grid>
-
-            <Grid Grid.Row="6" Background="#2E4053">
-                <Button Height="75" x:Name="btnHelp" Click="btnHelp_Click"  VerticalAlignment="Top"
-                        Background="#2E4053" BorderBrush="#2E4053">
-                </Button>
-                <md:PackIcon Kind="LinkVariant" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" MouseDown="btnHelp_Click"/>
-                <TextBlock Text="Link System" FontSize="16" Height="20" Margin="90,0,0,0" 
-                               MouseDown="btnHelp_Click" Foreground="White"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
-            </Grid>
-
-            <Grid Grid.Row="8" Background="#2E4053">
+            <Grid Grid.Row="5" Background="#2E4053">
                 <Button Height="69" x:Name="btnExit" Click="btnExit_Click"  VerticalAlignment="Top"
                         Background="#2E4053" BorderBrush="#2E4053" >
                 </Button>
@@ -127,12 +92,12 @@
                                Foreground="White" MouseDown="btnExit_Click"/>
                 <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
             </Grid>
-            <Grid Grid.Row="9" Background="#2E4053">
+            <Grid Grid.Row="6" Background="#2E4053">
                 <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
 
             </Grid>
 
-            <Grid Grid.Row="10" Background="#2E4053">
+            <Grid Grid.Row="7" Background="#2E4053">
                 <Image Source=".\Resources\Logo user.png"
                        Width="60" HorizontalAlignment="Left"/>
                 <TextBlock x:Name="lblUser" Text="Trần Tuấn Em" Foreground="White" FontSize="12" Height="15" Margin="60,0,0,0"/>
@@ -477,108 +442,6 @@
                     </Grid>
                 </Grid>
 
-                <Grid x:Name="Grid_Report" Background="White">
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1.5*"/>
-                        <RowDefinition Height="18*"/>
-                        <RowDefinition Height="1.2*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Background="#FFFFFF">
-                        <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
-                               Height="35" Width="35" Margin="20,0,0,0"/>
-                        <TextBlock Text="Báo cáo hoạt động vận chuyển" FontSize="20" FontWeight="DemiBold"
-                              VerticalAlignment="Center" Margin="60,0,0,0" Height="25"/>
-                    </Grid>
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="80*"/>
-                            <ColumnDefinition Width="1*"/>
-
-                        </Grid.ColumnDefinitions>
-                        <Grid Grid.Column="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1.1*"/>
-                                <ColumnDefinition Width="0.08*"/>
-                                <ColumnDefinition Width="1*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="0.15*"/>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="0.15*"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0">
-                                        <v:PieChartExample x:Name="uc_TransferRateChart" MouseDown="uc_TransferRateChart_MouseDown"></v:PieChartExample>
-                                    </Grid>
-                                    <Grid Grid.Column="1">
-                                        <v:PieChartExample x:Name="uc_MaterialChart" MouseDown="uc_MaterialChart_MouseDown"></v:PieChartExample>
-                                    </Grid>
-
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0">
-                                        <TextBlock x:Name="lblRate" Text="Tỷ lệ lệnh vận chuyển trong ngày"
-                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
-                                    </Grid>
-                                    <Grid Grid.Column="1">
-                                        <TextBlock x:Name="lblRate1" Text="Tỷ lệ hàng lưu trữ tại kho"
-                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
-                                    </Grid>
-
-                                </Grid>
-                                <Grid Grid.Row="2">
-                                    <v:TemplatureLineChart x:Name="uc_HistoryByWeek"></v:TemplatureLineChart>
-                                </Grid>
-                                <Grid Grid.Row="3">
-                                    <TextBlock x:Name="lblPh" Text="Biểu đồ trend vận chuyển trong tuần"
-                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
-                                </Grid>
-                            </Grid>
-                            <Grid Grid.Column="2">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="0.15*"/>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="0.15*"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <v:TemplatureLineChart x:Name="uc_HistoryByDay"></v:TemplatureLineChart>
-                                </Grid>
-                                <Grid Grid.Row="2">
-                                    <v:TemplatureLineChart x:Name="uc_AlarmByWeek"></v:TemplatureLineChart>
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <TextBlock x:Name="lblTemp" Text="Biểu đồ trend lệnh vận chuyển trong ngày"
-                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
-
-                                </Grid>
-                                <Grid Grid.Row="3">
-                                    <TextBlock x:Name="lblOxy" Text="Tổng hợp lỗi vận hành trong tuần"
-                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid Grid.Row="2">
-                        <Button x:Name="btnSendReport" Width="120" Height="40" Content="Gửi báo cáo" FontSize="15"
-                                BorderBrush="#0000AA" Background="#0000AA" Foreground="White"
-                                Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnSendReport_Click"/>
-
-                    </Grid>
-                </Grid>
             </Grid>
         </Grid>
     </Grid>

@@ -21,7 +21,6 @@ namespace SWM.UI
     /// </summary>
     public partial class Eqiupment : Window
     {
-        private string module;
         private string Choose_state = ManualControlWindow.Choose;
         private string _SourceState, _DestState, _DestID;
 
@@ -29,7 +28,6 @@ namespace SWM.UI
         public Eqiupment()
         {
             InitializeComponent();
-            module = LoginWindow.instance.cbb_floor.Text;
             Equipment_check();
         }
 

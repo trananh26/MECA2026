@@ -35,9 +35,8 @@ using SWM.BL;
 using System.Windows.Media.Animation;
 using System.Windows.Controls.Primitives;
 using SWM.DL;
-using LiveCharts;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.IO.Ports;
+
 namespace SWM.UI
 {
     /// <summary>
@@ -59,20 +58,11 @@ namespace SWM.UI
         private AGV_Slim[] AGV_Slim = new AGV_Slim[10000];
         private DataTable dtMaps = new DataTable();
         private ActUtlType PLC = new ActUtlType();
-        private TcpClient TCPConnect = new TcpClient();
-        private NetworkStream MCR_Stream;
-        private Thread Thread_rev;
 
-        DispatcherTimer Timer_CheckIP;
         DispatcherTimer Timer_ConveyerRun;
 
-        Byte[] data = new Byte[2024];
-        Int32 bytes;
-
-        private string IPConnect = "192.168.3.150";
         private string AGVID = "105";
 
-        private string IPBarcodeReader = "192.168.3.150";
         private string IP_PLC = "192.168.3.250";
 
         private int Port = 443;
@@ -81,27 +71,18 @@ namespace SWM.UI
         List<Socket> client_list;
         delegate void MyDelegate();
 
-        private string SendFrom = BLLogin.Email;
-        private string EmailSendPass = BLLogin.EmailPass;
-
-        private string _oldFullState, _oldLocaion, _oldOutputRequest;
+        private string _oldFullState, _oldLocaion;
+        private int _oldOutputRequest;
         private string _oldLeftState, _oldRightState, _oldInputState, _oldOutpuState;
-        private string _currentInputState;
         private string _crAlarm;
-        private string _oldQCode;
         private int _agvX = 0;
         private int _agvY = 0;
-
-        private string Q_Code = "Q734814124";
-        private string P_Code = "SAMSUNG S23";
-        bool MakeFailCommand = true;
 
         public MainWindow()
         {
             InitializeComponent();
             MakeSerrverConnect();
             Connect_PLC();
-            Connect_MCR();
             ConnectAGV();
             Load_Layout();
             Load_Map();
@@ -128,10 +109,6 @@ namespace SWM.UI
             TimerPing.Tick += TimerPing_Tick;
             TimerPing.Start();
 
-            Timer_CheckIP = new DispatcherTimer();
-            Timer_CheckIP.Interval = TimeSpan.FromSeconds(20);
-            Timer_CheckIP.Tick += Timer_CheckIP_Tick;
-
             Timer_ConveyerRun = new DispatcherTimer();
             Timer_ConveyerRun.Interval = TimeSpan.FromSeconds(5);
             Timer_ConveyerRun.Tick += Timer_ConveyerRun_Tick;
@@ -144,8 +121,16 @@ namespace SWM.UI
         {
             SWMPort.PortName = clsFileIO.ReadValue("COM_SWMPORT");
             SWMPort.BaudRate = int.Parse(clsFileIO.ReadValue("BAURATE"));
-            //SWMPort.Open();
             SWMPort.DataReceived += SWMPort_DataReceived;
+            try
+            {
+                if (!SWMPort.IsOpen)
+                    SWMPort.Open();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Không kết nối được cổng serial. Vui lòng kiểm tra lại cấu hình COM.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void SWMPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -188,10 +173,47 @@ namespace SWM.UI
                     PLC.SetDevice("M2200", 1);
                     Timer_ConveyerRun.Start();
                 }
+                //Nhập hàng lên kho khi nhận tin C1x từ cổng serial
+                else if (data.StartsWith("C1"))
+                {
+                    this.Dispatcher.Invoke(CreateImportCommand);
+                }
             }
             catch (Exception)
             {
 
+            }
+        }
+
+        /// <summary>
+        /// Tạo lệnh nhập hàng từ cổng vào (IP01) lên ô trống trong kho.
+        /// </summary>
+        private void CreateImportCommand()
+        {
+            try
+            {
+                DataTable dtEmptyBF = BLLayout.LoadEmptyBF();
+                if (dtEmptyBF.Rows.Count == 0)
+                    return;
+
+                TransportCommand transport = new TransportCommand();
+                transport.AGVID = "105";
+                transport.STKID = "B1STK01";
+                transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + "B1STK01_CV01_IP01" + "_" + dtEmptyBF.Rows[0]["BFNAME"].ToString();
+                transport.CommandSource = "B1STK01_CV01_IP01";
+                transport.CommandDest = dtEmptyBF.Rows[0]["BFNAME"].ToString();
+                transport.CommandSourceID = "215";
+                transport.CommandDestID = dtEmptyBF.Rows[0]["BFID"].ToString();
+                transport.CommandStatus = "JOB CREATE";
+                transport.JobStart = DateTime.Now;
+                transport.TrayID = "";
+
+                BLTransportCommand.InsertTransportCommand(transport);
+                BLLayout.UpdateTrayID(transport.CommandSourceID, "");
+                LoadTransportCommand();
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -223,7 +245,6 @@ namespace SWM.UI
         private void TimerPing_Tick(object sender, EventArgs e)
         {
             PingPLC();
-            PingBarcodeReader();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -314,57 +335,6 @@ namespace SWM.UI
             }
         }
 
-        //xử lý tạo lệnh output
-        private void MakeOutputCommand(string ProductType)
-        {
-            try
-            {
-                string strOutputRequest;
-                if (int.Parse(ProductType) > 0) strOutputRequest = "TYPE " + ProductType;
-                else strOutputRequest = "NONE";
-
-                if (strOutputRequest != _oldOutputRequest)
-                {
-                    DataTable dtPort = new DataTable();
-                    dtPort = BLTransportCommand.CheckBFToCreatCommand(ProductType);
-                    if (dtPort.Rows.Count > 0)
-                    {
-                        CreatOutputCommand(dtPort);
-                    }
-                    PLC.SetDevice("D2350", 0);
-                    //if (strOutputRequest == "TYPE 1")
-                    //{
-                    //    //Xuất hàng loại 1
-                    //    DataTable dtPort = new DataTable();
-                    //    dtPort = BLTransportCommand.CheckBFToCreatCommand("1");
-                    //    if (dtPort.Rows.Count > 0)
-                    //    {
-                    //        CreatOutputCommand(dtPort);
-                    //    }
-                    //    PLC.SetDevice("D2350", 0);
-                    //}
-                    //else if (strOutputRequest == "TYPE 2")
-                    //{
-                    //    //Xuất hàng loại 2
-                    //    DataTable dtPort = new DataTable();
-                    //    dtPort = BLTransportCommand.CheckBFToCreatCommand("2");
-                    //    if (dtPort.Rows.Count > 0)
-                    //    {
-                    //        CreatOutputCommand(dtPort);
-                    //    }
-                    //    PLC.SetDevice("D2350", 0);
-                    //}
-                    _oldOutputRequest = "NONE";
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Lỗi tạo lệnh output. vui lòng kiểm tra lại.", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            }
-
-        }
-
         object Deseriliaze(byte[] data)
         {
             MemoryStream Stream_x = new MemoryStream(data, 0, 14);
@@ -392,134 +362,6 @@ namespace SWM.UI
             }
         }
 
-        //xử lý đọc Q_Code từ MCR
-        private void Connect_MCR()
-        {
-            try
-            {
-                TcpClient TCP_Connect = new TcpClient(IPConnect, 23);
-                MCR_Stream = TCP_Connect.GetStream();
-                Thread_rev = null;
-                Thread_rev = new Thread(new ThreadStart(TCP_Read));
-                Thread_rev.Start();
-            }
-            catch (Exception)
-            {
-
-                AlarmLog.LogAlarmToDatabase("03");
-                MessageBox.Show("Không kết nối được với Barcode Reader. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-
-        }
-
-        //TCP/IP đọc mã Q_code từ MCR
-        private void TCP_Read()
-        {
-            try
-            {
-                while (true)
-                {
-                    bytes = MCR_Stream.Read(data, 0, data.Length);
-                    if (bytes > 0)
-                    {
-                        string Q_data = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                        Q_Code = Q_data.Substring(0, 8);//Q1234501
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            if (Q_Code != _oldQCode && Q_Code != "")
-                            {
-                                if (CheckProduct(Q_Code) == true)// && _oldInputState == "FULL")
-                                {
-                                    MakeFailCommand = false;
-
-                                    //  Check chống lặp lệnh
-                                    DataTable dtEmpltyBF = new DataTable();
-                                    dtEmpltyBF = BLLayout.LoadEmptyBF();
-
-                                    TransportCommand Transport = new TransportCommand();
-                                    Transport.AGVID = "105";
-                                    Transport.STKID = "B1STK01";
-                                    Transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + "B1STK01_CV01_IP01" + "_" + dtEmpltyBF.Rows[0]["BFNAME"].ToString();
-                                    Transport.CommandSource = "B1STK01_CV01_IP01";
-                                    Transport.CommandDest = dtEmpltyBF.Rows[0]["BFNAME"].ToString();
-                                    Transport.CommandSourceID = "215";
-                                    Transport.CommandDestID = dtEmpltyBF.Rows[0]["BFID"].ToString();
-                                    Transport.CommandStatus = "JOB CREATE";
-                                    Transport.JobStart = DateTime.Now;
-                                    Transport.TrayID = Q_Code;
-
-                                    BLTransportCommand.InsertTransportCommand(Transport);
-
-                                    BLLayout.UpdateTrayID(Transport.CommandSourceID, Q_Code);
-                                    //BLLayout.UpdateTrayID(Transport.CommandDestID, Q_Code);
-
-                                    LoadTransportCommand();
-                                }
-                                else if (CheckProduct(Q_Code) != true)// && _oldInputState == "FULL")
-                                {
-                                    MakeFailCommand = false;
-
-                                    TransportCommand Transport = new TransportCommand();
-                                    Transport.AGVID = "105";
-                                    Transport.STKID = "B1STK01";
-                                    Transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + "B1STK01_CV01_IP01" + "_" + "B1STK01_CV01_OP01";
-                                    Transport.CommandSource = "B1STK01_CV01_IP01";
-                                    Transport.CommandDest = "B1STK01_CV01_OP01";
-                                    Transport.CommandSourceID = "215";
-                                    Transport.CommandDestID = "115";
-                                    Transport.CommandStatus = "JOB CREATE";
-                                    Transport.JobStart = DateTime.Now;
-                                    Transport.TrayID = Q_Code;
-
-                                    BLTransportCommand.InsertTransportCommand(Transport);
-
-                                    BLLayout.UpdateTrayID("215", "");
-                                    //BLLayout.UpdateTrayID("115", "");
-
-                                    LoadTransportCommand();
-                                }
-
-                                _oldQCode = Q_Code;
-                            }
-                            //MakeTransportCommand();
-                        });
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-
-            }
-
-        }
-
-        private bool CheckProduct(string Q_Code)
-        {
-            return BLTransportCommand.CheckProductByQCode(Q_Code);
-        }
-
-        //Thực hiện check connect tới PLC và barcode
-        private void PingBarcodeReader()
-        {
-            try
-            {
-                Ping BarcodePing = new Ping();
-                PingReply Reply = BarcodePing.Send(IPBarcodeReader);
-                // check when the ping is not success
-                if (Reply.Status != IPStatus.Success)
-                {
-                    AlarmLog.LogAlarmToDatabase("03");
-                    MessageBox.Show("Không kết nối được với Barcode Reader. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                AlarmLog.LogAlarmToDatabase("03");
-                MessageBox.Show("Không kết nối được với Barcode Reader. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
         private void PingPLC()
         {
             try
@@ -538,33 +380,6 @@ namespace SWM.UI
                 AlarmLog.LogAlarmToDatabase("04");
                 MessageBox.Show("Không kết nối được với PLC. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-        }
-
-        //Tạo lệnh trong trường hợp không đọc được QR Code
-        private void Timer_CheckIP_Tick(object sender, EventArgs e)
-        {
-            if (_currentInputState == "FULL" && MakeFailCommand == true)
-            {
-                TransportCommand Transport = new TransportCommand();
-                Transport.AGVID = "105";
-                Transport.STKID = "B1STK01";
-                Transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + "B1STK01_CV01_IP01" + "_" + "B1STK01_CV01_OP01";
-                Transport.CommandSource = "B1STK01_CV01_IP01";
-                Transport.CommandDest = "B1STK01_CV01_OP01";
-                Transport.CommandSourceID = "215";
-                Transport.CommandDestID = "115";
-                Transport.CommandStatus = "JOB CREATE";
-                Transport.JobStart = DateTime.Now;
-                Transport.TrayID = "";
-
-                BLTransportCommand.InsertTransportCommand(Transport);
-
-                BLLayout.UpdateTrayID("215", "");
-                //BLLayout.UpdateTrayID("115", "");
-
-                LoadTransportCommand();
-            }
-            Timer_CheckIP.Stop();
         }
 
         // định kỳ kiểm tra trạng thái lệnh
@@ -846,55 +661,13 @@ namespace SWM.UI
                     AlarmLog.LogAlarmToDatabase(strAlarm);
                     _crAlarm = strAlarm;
                 }
-                ////Trạng thái dãy ô chứa bên trái
-                //int[] Read_LeftState = new int[5];
-                //PLC.ReadDeviceBlock("D2250", 5, out Read_LeftState[0]);
-                //string _leftData = "";
-                //byte[] _left = new byte[10];
-
-                //for (int i = 0; i < 10; i = i + 2)
-                //{
-                //    _left[i] = (byte)Read_LeftState[i / 2];
-                //    _left[i + 1] = (byte)(Read_LeftState[i / 2] / 256);
-                //}
-                //_leftData = Encoding.ASCII.GetString(_left);
-
-
-                ////Trạng thái dãy ô chứa bên phải
-                //int[] Read_RightState = new int[5];
-                //PLC.ReadDeviceBlock("D2200", 5, out Read_RightState[0]);
-                //string _rightData = "";
-                //byte[] _right = new byte[10];
-
-                //for (int i = 0; i < 10; i = i + 2)
-                //{
-                //    _right[i] = (byte)Read_RightState[i / 2];
-                //    _right[i + 1] = (byte)(Read_RightState[i / 2] / 256);
-                //}
-                //_rightData = Encoding.ASCII.GetString(_right);
-
-                //UpdateSTKState(_leftData, _rightData);
-
+             
                 //Trạng thái IP01
                 int _inputState;
                 PLC.GetDevice("M2300", out _inputState);
-                string strInputState;
-                if (_inputState == 1)
-                {
-                    strInputState = "FULL";
-                }
-                else
-                {
-                    strInputState = "EMPTY";
-                    MakeFailCommand = true;
-                }
-                _currentInputState = strInputState;
+                string strInputState = _inputState == 1 ? "FULL" : "EMPTY";
                 if (strInputState != _oldInputState)
                 {
-                    if (strInputState == "FULL")
-                    {
-                        Timer_CheckIP.Start();
-                    }
                     BLLayout.UpdateInOutState(215, strInputState);
                     Load_Layout();
                     _oldInputState = strInputState;
@@ -926,43 +699,9 @@ namespace SWM.UI
                     _oldOutpuState = strOutputState;
                 }
 
-
-                // Lệnh xuất hàng D2350
-                int _OutputRequest;
-                PLC.GetDevice("D2350", out _OutputRequest);
-                MakeOutputCommand(_OutputRequest.ToString());
-                //string strOutputRequest;
-                //if (_OutputRequest == 1) strOutputRequest = "TYPE 1";
-                //else if (_OutputRequest == 2) strOutputRequest = "TYPE 2";
-                //else strOutputRequest = "NONE";
-
-                //if (strOutputRequest != _oldOutputRequest)
-                //{
-                //    if (strOutputRequest == "TYPE 1")
-                //    {
-                //        //Xuất hàng loại 1
-                //        DataTable dtPort = new DataTable();
-                //        dtPort = BLTransportCommand.CheckBFToCreatCommand("1");
-                //        if (dtPort.Rows.Count > 0)
-                //        {                            
-                //            CreatOutputCommand(dtPort);
-                //        }
-                //        PLC.SetDevice("D2350", 0);
-                //    }
-                //    else if (strOutputRequest == "TYPE 2")
-                //    {
-                //        //Xuất hàng loại 2
-                //        DataTable dtPort = new DataTable();
-                //        dtPort = BLTransportCommand.CheckBFToCreatCommand("2");
-                //        if (dtPort.Rows.Count > 0)
-                //        {
-                //            CreatOutputCommand(dtPort);
-                //        }
-                //        PLC.SetDevice("D2350", 0);
-                //    }
-                //    _oldOutputRequest = "NONE";
-                //}
-
+                int outputRequest;
+                PLC.GetDevice("D2350", out outputRequest);
+                HandleHmiOutputRequest(outputRequest);
             }
             catch (Exception)
             {
@@ -971,62 +710,43 @@ namespace SWM.UI
 
         }
 
-        private void CreatOutputCommand(DataTable dtPort)
+        private void HandleHmiOutputRequest(int outputRequest)
         {
-            string Port_Source = dtPort.Rows[0]["BFNAME"].ToString();
-            string ID_Source = dtPort.Rows[0]["BFID"].ToString();
-            TransportCommand Transport = new TransportCommand();
-            Transport.AGVID = "105";
-            Transport.STKID = "B1STK01";
-            Transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + Port_Source + "_" + "B1STK01_CV01_OP01";
-            Transport.CommandSource = Port_Source;
-            Transport.CommandDest = "B1STK01_CV01_OP01";
-            Transport.CommandSourceID = ID_Source;
-            Transport.CommandDestID = "115";
-            Transport.CommandStatus = "JOB CREATE";
-            Transport.JobStart = DateTime.Now;
-            Transport.TrayID = dtPort.Rows[0]["TRAYID"].ToString();
+            if (outputRequest <= 0)
+            {
+                _oldOutputRequest = 0;
+                return;
+            }
 
-            BLTransportCommand.InsertTransportCommand(Transport);
-            LoadTransportCommand();
+            if (outputRequest == _oldOutputRequest)
+                return;
+
+            DataTable dtPort = BLLayout.LoadFullBF();
+            if (dtPort.Rows.Count > 0)
+                CreateExportCommand(dtPort);
+
+            PLC.SetDevice("D2350", 0);
+            _oldOutputRequest = outputRequest;
         }
 
-        private void UpdateSTKState(string leftData, string rightData)
+        private void CreateExportCommand(DataTable dtPort)
         {
-            //100100 ==> 101101
-            char[] _leftShelf = leftData.ToCharArray();
-            for (int i = 2; i < 10; i++)
-            {
-                if (_leftShelf[i].ToString() == "1")
-                    lst_LeftBF[i - 2].FULLSTATE = "FULL";
-                else
-                    lst_LeftBF[i - 2].FULLSTATE = "EMPTY";
-            }
+            string portSource = dtPort.Rows[0]["BFNAME"].ToString();
+            string idSource = dtPort.Rows[0]["BFID"].ToString();
+            TransportCommand transport = new TransportCommand();
+            transport.AGVID = "105";
+            transport.STKID = "B1STK01";
+            transport.CommandID = DateTime.Now.ToString("ddMMyyyyHHmmss") + "_" + portSource + "_" + "B1STK01_CV01_OP01";
+            transport.CommandSource = portSource;
+            transport.CommandDest = "B1STK01_CV01_OP01";
+            transport.CommandSourceID = idSource;
+            transport.CommandDestID = "115";
+            transport.CommandStatus = "JOB CREATE";
+            transport.JobStart = DateTime.Now;
+            transport.TrayID = dtPort.Rows[0]["TRAYID"].ToString();
 
-            //010010 ==> 110101
-            char[] _rightShelf = rightData.ToCharArray();
-            for (int j = 2; j < 10; j++)
-            {
-                if (_rightShelf[j].ToString() == "1")
-                    lst_RightBF[j - 2].FULLSTATE = "FULL";
-                else
-                    lst_RightBF[j - 2].FULLSTATE = "EMPTY";
-            }
-
-            if (leftData != _oldLeftState)
-            {
-                BLLayout.UpdateSTKState(lst_LeftBF);
-                Load_Layout();
-            }
-
-            if (rightData != _oldRightState)
-            {
-                BLLayout.UpdateSTKState(lst_RightBF);
-                Load_Layout();
-            }
-
-            _oldLeftState = leftData;
-            _oldRightState = rightData;
+            BLTransportCommand.InsertTransportCommand(transport);
+            LoadTransportCommand();
         }
 
         private void AGV_check()
@@ -1139,7 +859,6 @@ namespace SWM.UI
             catch (Exception)
             {
 
-                ;
             }
 
         }
@@ -1517,7 +1236,6 @@ namespace SWM.UI
             Grid_Map.Visibility = Visibility.Visible;
             Grid_AGVDetail.Visibility = Visibility.Hidden;
             Grid_CommandHistory.Visibility = Visibility.Hidden;
-            Grid_Report.Visibility = Visibility.Hidden;
             lblUser.Text = BLLogin.DisplayName;
             LoadTransportCommand();
 
@@ -1558,7 +1276,6 @@ namespace SWM.UI
             Grid_Map.Visibility = Visibility.Visible;
             Grid_AGVDetail.Visibility = Visibility.Hidden;
             Grid_CommandHistory.Visibility = Visibility.Hidden;
-            Grid_Report.Visibility = Visibility.Hidden;
             lblUser.Text = BLLogin.DisplayName;
         }
 
@@ -1567,7 +1284,6 @@ namespace SWM.UI
             Grid_Map.Visibility = Visibility.Hidden;
             Grid_AGVDetail.Visibility = Visibility.Visible;
             Grid_CommandHistory.Visibility = Visibility.Hidden;
-            Grid_Report.Visibility = Visibility.Hidden;
             DataTable dtDetail = new DataTable();
             dtDetail = BLReport.GetBFDetail();
             dtgBFData.ItemsSource = dtDetail.DefaultView;
@@ -1579,7 +1295,6 @@ namespace SWM.UI
             Grid_Map.Visibility = Visibility.Hidden;
             Grid_AGVDetail.Visibility = Visibility.Hidden;
             Grid_CommandHistory.Visibility = Visibility.Visible;
-            Grid_Report.Visibility = Visibility.Hidden;
             LoadTransportCommand();
 
         }
@@ -1602,151 +1317,11 @@ namespace SWM.UI
             lbl_UnloadCount.Content = dtJobCount.Rows[0]["OutputCommand"].ToString();
         }
 
-        private void btnReport_Click(object sender, RoutedEventArgs e)
-        {
-            Grid_Map.Visibility = Visibility.Hidden;
-            Grid_AGVDetail.Visibility = Visibility.Hidden;
-            Grid_CommandHistory.Visibility = Visibility.Hidden;
-            Grid_Report.Visibility = Visibility.Visible;
-
-            DataTable dtReport = new DataTable();
-            dtReport = BLReport.CommandRate();
-            // show biểu đồ báo cáo
-            ShowPieReport();
-            ShowHistoryReport(dtReport);
-        }
-
-        //Xử lý thêm loại hàng khác
-        private void ShowPieReport()
-        {
-            uc_MaterialChart.Good.Title = "GALAXY Z FOLD 5";
-            uc_MaterialChart.Normal.Title = "IPHONE 15 PROMAX";
-            uc_MaterialChart.Other.Title = "SAMSUNG S24 ULTRA";
-            uc_MaterialChart.Warning.Title = "EMPTY";
-
-            DataTable dtBF = new DataTable();
-            dtBF = BLReport.GetBFDetail();
-            int type1 = 0; int type2 = 0; int type3 = 0; int empty = 0;
-            for (int i = 0; i < dtBF.Rows.Count; i++)
-            {
-                if (dtBF.Rows[i]["ProductID"].ToString() == "1")
-                {
-                    type1++;
-                }
-                if (dtBF.Rows[i]["ProductID"].ToString() == "2")
-                {
-                    type2++;
-                }
-                if (dtBF.Rows[i]["ProductID"].ToString() == "3")
-                {
-                    type3++;
-                }
-                else
-                {
-                    empty++;
-                }
-            }
-
-            uc_MaterialChart.Good.Values = new ChartValues<double> { double.Parse(type1.ToString()) };//Galaxy Z Fold 5
-            uc_MaterialChart.Normal.Values = new ChartValues<double> { double.Parse(type2.ToString()) };// Iphone 15
-            uc_MaterialChart.Other.Values = new ChartValues<double> { double.Parse(type3.ToString()) };// Iphone 15
-            uc_MaterialChart.Warning.Values = new ChartValues<double> { double.Parse(empty.ToString()) };//Empty
-
-
-            DataTable dtCommandRate = new DataTable();
-            dtCommandRate = BLReport.CommandRate();
-            uc_TransferRateChart.Other.Visibility = Visibility.Hidden;
-            uc_TransferRateChart.Good.Values = new ChartValues<double> { double.Parse(dtCommandRate.Rows[0]["Complete"].ToString()) };//hoàn thành
-            uc_TransferRateChart.Normal.Values = new ChartValues<double> { double.Parse(dtCommandRate.Rows[0]["Transfering"].ToString()) };//đang vận chuyển
-            uc_TransferRateChart.Warning.Values = new ChartValues<double> { double.Parse(dtCommandRate.Rows[0]["Cancel"].ToString()) };//cancel
-        }
-
-        private void ShowHistoryReport(DataTable dtReport)
-        {
-            //DataRow drLabels = dtReport.Rows[0];
-            //DataRow drComplete = dtReport.Rows[1];
-            //DataRow drTransfering = dtReport.Rows[2];
-            //DataRow drCancel = dtReport.Rows[3];
-            //DataRow drTotal = dtReport.Rows[4];
-
-            //Dữ liệu vận hành trong ngày
-            uc_HistoryByDay.srComplete.Title = "Vận chuyển thành công";
-            uc_HistoryByDay.srComplete.Values = new ChartValues<double> { 0, 0, 0, 8, 12, 10 };
-
-            uc_HistoryByDay.srCancel.Title = "Lệnh bị hủy";
-            uc_HistoryByDay.srCancel.Values = new ChartValues<double> { 0, 0, 0, 3, 2, 1 };
-
-            uc_HistoryByDay.srTransfering.Title = "Lệnh đang thực hiện";
-            uc_HistoryByDay.srTransfering.Values = new ChartValues<double> { 0, 0, 0, 0, 0, 8 };
-
-            uc_HistoryByDay.Label.Labels = new[] {(DateTime.Now.Hour - 5).ToString(), (DateTime.Now.Hour - 4).ToString(), (DateTime.Now.Hour - 3).ToString(),
-                (DateTime.Now.Hour-2).ToString(),(DateTime.Now.Hour-1).ToString(),DateTime.Now.Hour.ToString() };
-
-
-            //Dữ liệu vận hành trong tuần
-            uc_HistoryByWeek.srComplete.Title = "Vận chuyển thành công";
-            uc_HistoryByWeek.srComplete.Values = new ChartValues<double> { 20, 31, 36, 30, 38, double.Parse(dtReport.Rows[0]["Complete"].ToString()) };
-
-            uc_HistoryByWeek.srCancel.Title = "Lệnh bị hủy";
-            uc_HistoryByWeek.srCancel.Values = new ChartValues<double> { 3, 10, 9, 12, 16, double.Parse(dtReport.Rows[0]["Cancel"].ToString()) };
-
-            uc_HistoryByWeek.srTransfering.Title = "Lệnh đang thực hiện";
-            uc_HistoryByWeek.srTransfering.Values = new ChartValues<double> { 0, 0, 0, 0, 0, double.Parse(dtReport.Rows[0]["Transfering"].ToString()) };
-
-            uc_HistoryByWeek.Label.Labels = new[] {DateTime.Now.Date.AddDays(-5).ToString("dd/MM/yyyy"), DateTime.Now.Date.AddDays(-4).ToString("dd/MM/yyyy"), DateTime.Now.Date.AddDays(-3).ToString("dd/MM/yyyy"),
-                DateTime.Now.Date.AddDays(-2).ToString("dd/MM/yyyy"),DateTime.Now.Date.AddDays(-1).ToString("dd/MM/yyyy"),DateTime.Now.Date.ToString("dd/MM/yyyy") };
-
-
-            //Dữ liệu lỗi trong tuần
-
-            DataTable dtAlarm = new DataTable();
-            dtAlarm = BLReport.GetAlarmHistoryForReport();
-
-            uc_AlarmByWeek.srComplete.Title = "Số lỗi phát sinh";
-            uc_AlarmByWeek.srComplete.Values = new ChartValues<double> { 8, 10, 9, 12, 15, double.Parse(dtAlarm.Rows.Count.ToString()) };
-
-            uc_AlarmByWeek.srCancel.Visibility = Visibility.Hidden;
-            uc_AlarmByWeek.srTransfering.Visibility = Visibility.Hidden;
-            //uc_HistoryByDay.srCancel.Values = new ChartValues<double> { 0, 0, 0, 0, 1, 0 };
-
-            //uc_HistoryByDay.srTransfering.Title = "Lệnh đang thực hiện";
-            //uc_HistoryByDay.srTransfering.Values = new ChartValues<double> { 0, 0, 0, 0, 0, 8 };
-
-            uc_AlarmByWeek.Label.Labels = new[] {DateTime.Now.Date.AddDays(-5).ToString("dd/MM/yyyy"), DateTime.Now.Date.AddDays(-4).ToString("dd/MM/yyyy"), DateTime.Now.Date.AddDays(-3).ToString("dd/MM/yyyy"),
-                DateTime.Now.Date.AddDays(-2).ToString("dd/MM/yyyy"),DateTime.Now.Date.AddDays(-1).ToString("dd/MM/yyyy"),DateTime.Now.Date.ToString("dd/MM/yyyy") };
-
-        }
-
-        private void uc_TransferRateChart_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            //Lấy ra lịch sử vận chuyển trong ngày
-            DataTable dt = new DataTable();
-            dt = BLReport.GetTransportCommandForReport();
-
-            ReportWindow frm = new ReportWindow();
-            frm.dtReport = dt;
-            frm.Title = "Chi tiết lịch sử vận chuyển";
-            frm.ShowDialog();
-        }
-
-        private void uc_MaterialChart_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            //Lấy ra chi tiết hàng hóa lưu trữ
-            DataTable dt = new DataTable();
-            dt = BLReport.GetAllBFState();
-
-            ReportWindow frm = new ReportWindow();
-            frm.dtReport = dt;
-            frm.Title = "Chi tiết hàng hóa lưu trữ tại kho chứa";
-            frm.ShowDialog();
-        }
-
         private void btnManualControl_Click(object sender, RoutedEventArgs e)
         {
             Grid_Map.Visibility = Visibility.Hidden;
             Grid_AGVDetail.Visibility = Visibility.Hidden;
             Grid_CommandHistory.Visibility = Visibility.Visible;
-            Grid_Report.Visibility = Visibility.Hidden;
             LoadTransportCommand();
             ManualControlWindow frm = new ManualControlWindow();
             frm.ShowDialog();
@@ -1776,16 +1351,6 @@ namespace SWM.UI
             frm.ShowDialog();
             LoadTransportCommand();
         }
-
-        // link gọi window other connecttion
-        private void btnHelp_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshCommand();
-            //MessageBox.Show("Tính năng đang trong quá trình phát triển. Vui lòng thửu lại sau!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-            //LinkSystem frm = new LinkSystem();
-            //frm.ShowDialog();
-        }
-
 
         private void dtgCommandHistory_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
@@ -1827,28 +1392,6 @@ namespace SWM.UI
             //PLC.SetDevice("D5200", 0);
             //PLC.SetDevice("M1", 0);
             PLC.Close();
-        }
-
-        private void btnSendReport_Click(object sender, RoutedEventArgs e)
-        {
-            DataTable HistoryReport = new DataTable();
-            DataTable dtRecevier = new DataTable();
-            dtRecevier = BLReport.GetRecevierForReport();
-            HistoryReport = BLReport.GetDataForReport(DateTime.Now.ToString("yyyy-MM-dd 00:00:00"), DateTime.Now.ToString("yyyy-MM-dd 23:59:59"));
-            if (SendEmail.SendReport(SendFrom, EmailSendPass, HistoryReport, dtRecevier, BLLogin.DisplayName))
-                MessageBox.Show("Gửi báo cáo thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-            else
-            {
-                MessageBox.Show("Gửi báo cáo không thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                AlarmLog.LogAlarmToDatabase("10");
-            }
-        }
-
-        private void btnSetting_Click(object sender, RoutedEventArgs e)
-        {
-            frmSetting frm = new frmSetting();
-            frm.Creator = BLLogin.UserName;
-            frm.ShowDialog();
         }
 
         string strcheck;

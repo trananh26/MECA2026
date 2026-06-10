@@ -84,6 +84,20 @@ namespace SWM.BL
             return DLLayout.LoadLayoutConfig(Stored);
         }
 
+        public static DataTable LoadFullBF()
+        {
+            string Stored = @"SELECT BFID, BFNAME, FULLSTATE, TRAYID, SUBSTRING(BFNAME, 16, 1) AS X
+                FROM dbo.NA_R_BF_INFORMATION
+                WHERE FULLSTATE = N'FULL'
+                AND BFID NOT IN (
+                SELECT CommandSourceID
+                FROM CommandHistory
+                WHERE CommandStatus IN(N'JOB CREATE', N'TRANSFERING DEST', N'JOB START'))
+                AND BFNAME LIKE '%BF01%'
+                ORDER BY X";
+            return DLLayout.LoadLayoutConfig(Stored);
+        }
+
         public static void UpdateTrayID(string BFID, string TrayID)
         {
             string Stored = @"Proc_UpdateTrayID";

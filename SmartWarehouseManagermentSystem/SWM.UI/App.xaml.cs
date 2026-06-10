@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using SWM.BL;
+using SWM.Common;
 using System.Windows;
 
 namespace SWM.UI
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            Connection.ConnectionString = @"Data Source=.\SQLExpress;Initial Catalog=SmartWarehouse;Integrated Security=True";
+            BLLogin.UserName = "system";
+            BLLogin.DisplayName = "Operator";
+            BLLogin.Role = "Admin";
+
+            base.OnStartup(e);
+        }
     }
 }
