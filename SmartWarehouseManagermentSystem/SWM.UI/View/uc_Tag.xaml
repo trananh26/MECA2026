@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="SWM.UI.View.uc_Tag"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWM.UI.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="6" d:DesignWidth="6">
+    <Grid>
+        <Polygon Height="6" Width="6" Points="6,3 0,6 0,0" x:Name="pol_Tag" 
+                
+                 Fill="{Binding colorbackgroud,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="Black"
+                 StrokeThickness="0.1">
+
+        </Polygon>
+        <Grid.RenderTransform>
+            <RotateTransform
+                x:Name="rotation_tag" CenterX="3" CenterY="3" 
+                Angle="{Binding Direction_Tag,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}">
+
+            </RotateTransform>
+        </Grid.RenderTransform>
+    </Grid>
+</UserControl>

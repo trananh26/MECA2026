@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="SWM.UI.View.TemplatureLineChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWM.UI.View"
+             xmlns:v="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <v:CartesianChart>
+            <v:CartesianChart.Series>
+                <v:LineSeries x:Name="srComplete"  Values="1,5,3,5,5,6,4" />
+                <v:LineSeries x:Name="srCancel" Values="4,6,2,5,3,1,6" />
+                <v:LineSeries x:Name="srTransfering"  Values="1,2,3,5,6,8,6" />
+                <!--<v:LineSeries x:Name="srTotal" Values="4,1,2,5,4,1,6" />-->
+            </v:CartesianChart.Series>
+            <v:CartesianChart.AxisX>
+                <v:Axis x:Name="Label" Labels="1,2,3,4,5,6,7"></v:Axis>
+            </v:CartesianChart.AxisX>
+        </v:CartesianChart>
+    </Grid>
+</UserControl>

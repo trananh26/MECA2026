@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="SWM.UI.View.AGV_Slim"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWM.UI.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="30">
+    <Grid>
+        <Polygon Height="40" Width="30" Points="0,32 15,0 30,32" x:Name="pol_AGV" 
+                
+                 Fill="{Binding colorbackgroud,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="Black"
+                 StrokeThickness="1" MouseRightButtonUp="pol_AGV_MouseRightButtonUp" >
+
+        </Polygon>
+        <Rectangle x:Name="rtgSlottray" Grid.Column="0" Width="10" Height="10" HorizontalAlignment="Center"  
+                   Fill="{Binding colorTray,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}" 
+                   Margin="9,15,9,11"
+                   Stroke="Black" MouseRightButtonUp="rtgSlottray_MouseRightButtonUp"
+                   StrokeThickness="1"
+                   Visibility="{Binding VisibilitySlotTray,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}"
+                   />
+        <Label 
+            FontSize="0.1"
+            Content="{Binding AGV_Name,Mode=OneWay,
+                        RelativeSource={RelativeSource AncestorType=UserControl}}"          
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center" Margin="0,40,0,0"
+            />
+        <Rectangle x:Name="AGV_battery" Height="8" Width="30" VerticalAlignment="Bottom" 
+                   Stroke="Black"
+                   StrokeThickness="1"
+                   MouseRightButtonUp="AGV_battery_MouseRightButtonUp"
+                   Fill="{Binding color_battery,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}" />
+
+        <Grid.RenderTransform>
+            <RotateTransform
+                x:Name="rotation_AGV" CenterX="14" CenterY="17.5"
+                Angle="{Binding Direction_AGV,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}">
+
+            </RotateTransform>
+        </Grid.RenderTransform>
+    </Grid>
+</UserControl>

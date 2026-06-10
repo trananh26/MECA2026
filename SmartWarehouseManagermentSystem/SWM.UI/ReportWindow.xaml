@@ -1,0 +1,42 @@
+﻿<Window x:Class="SWM.UI.ReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWM.UI"
+        xmlns:v="clr-namespace:SWM.UI.View"
+        mc:Ignorable="d" Loaded="Window_Loaded"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="Báo cáo" Height="900" Width="1600" 
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="18*"/>
+            <RowDefinition Height="1.2*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" >
+            <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
+                               Height="35" Width="35" Margin="20,0,0,0"/>
+            <TextBlock x:Name="lblTitle" Text="Chi tiết lịch sử thực hiện lệnh vận chuyển" FontSize="20" FontWeight="DemiBold"
+                              VerticalAlignment="Center" Margin="60,0,0,0" Height="25"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <DataGrid x:Name="dtgCommandHistory" IsReadOnly="True">
+             
+            </DataGrid>
+
+        </Grid>
+        <Grid Grid.Row="2">
+            <Button x:Name="btnExportExcel" Width="100" HorizontalAlignment="Right" Margin="0,1,10,1"
+                    Click="btnExportExcel_Click" Background="LightGreen" BorderBrush="Transparent"/>
+            <materialDesign:PackIcon x:Name="icExport" Kind="MicrosoftExcel" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                     Margin="0,0,80,0" Height="22" Width="22"
+                                     MouseDown="btnExportExcel_Click"/>
+            <TextBlock x:Name="lblExport" Text="Export" FontSize="14" Height="15" VerticalAlignment="Center" HorizontalAlignment="Right"
+                       Margin="0,0,28,0" MouseDown="btnExportExcel_Click" Foreground="Black"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,68 @@
+﻿<Window x:Class="SWM.UI.Eqiupment"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWM.UI"
+       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow"
+        Title="Chọn thiết bị" Height="500" Width="700" Loaded="Window_Loaded">
+    <Grid Background="AliceBlue">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="8*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="80*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
+                <TextBlock Text="Thiết bị đã chọn:" VerticalAlignment="Center" HorizontalAlignment="Left"
+                           FontSize="16" FontWeight="Bold"/>
+            </Grid>
+            <Grid Grid.Column="2">
+                <TextBox Height="30" x:Name="txb_Search" TextChanged="txb_Search_TextChanged" 
+                         VerticalAlignment="Center"  FontSize="16" FontWeight="Bold"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="100*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
+                <DataGrid x:Name="dtg_equip" BorderBrush="#E0E0E0" Background="AliceBlue"
+                          SelectedCellsChanged="dtg_equip_SelectedCellsChanged">
+                </DataGrid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="75*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="2">
+                <Button Style="{StaticResource MaterialDesignRaisedButton}" Height="30" Width="90"
+                    x:Name="btt_ok" Click="btt_ok_Click"  Background="#E0E0e0" Foreground="Black">OK
+                </Button>
+            </Grid>
+            <Grid Grid.Column="3">
+                <Button Style="{StaticResource MaterialDesignRaisedButton}" Height="30" Width="90"
+                    x:Name="btt_canel" Click="btt_canel_Click" Background="#E0E0e0" Foreground="Black">CANCEL
+                </Button>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

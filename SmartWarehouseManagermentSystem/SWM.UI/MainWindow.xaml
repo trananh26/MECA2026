@@ -1,0 +1,585 @@
+﻿<Window x:Class="SWM.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWM.UI"
+        mc:Ignorable="d"
+        xmlns:v="clr-namespace:SWM.UI.View"
+        Title="Smart Warehouse Managerment System" Height="1080" Width="1930" 
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"  
+        Closing="Window_Closing"  Loaded="Window_Loaded"
+        MouseWheel="Window_MouseWheel" WindowState="Maximized">
+    
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="6.5*"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Tab điều khiển-->
+        <Grid Grid.Column="0">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="1.5*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Background="#2E4053">
+                <Image Source=".\Resources\TA logo2.png"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="1" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                        x:Name="btnDashboard" Click="btnDashboard_Click" >
+                </Button>
+                <md:PackIcon Kind="ViewDashboardOutline" Width="35" Height="35" VerticalAlignment="Center" 
+                                         MouseDown="btnDashboard_Click" Margin="30,0,0,0" Background="#2E4053"/>
+                <TextBlock Text="Dashboard" FontSize="16" Height="20" Margin="90,0,0,0" Foreground="White"
+                           MouseDown="btnDashboard_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="2" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                        x:Name="btnDetail" Click="btnBufferDetail_Click">
+                </Button>
+                <md:PackIcon Kind="Finance" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" x:Name="picDetail" MouseDown="btnBufferDetail_Click"/>
+                <TextBlock Text=" STK Detail" FontSize="16" Height="20" Foreground="White"
+                           MouseDown="btnBufferDetail_Click" Margin="90,0,0,0"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="3" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                        x:Name="btnHistory" Click="btnCommandHistory_Click">
+                </Button>
+                <md:PackIcon Kind="ArrangeSendBackward" Width="35" Height="35" VerticalAlignment="Center" 
+                                         Margin="30,0,0,0" MouseDown="btnCommandHistory_Click" Background="#2E4053"/>
+                <TextBlock Text="Job History" FontSize="16" Height="20" Margin="90,0,0,0" 
+                               MouseDown="btnCommandHistory_Click" Foreground="White"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="4" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                       x:Name="btnReport" Click="btnReport_Click">
+                </Button>
+                <md:PackIcon Kind="ChartPie" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" MouseDown="btnReport_Click"/>
+                <TextBlock Text="Report" FontSize="16" Height="20" Foreground="White"
+                           Margin="90,0,0,0" MouseDown="btnReport_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="5" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                        x:Name="btnControl" Click="btnManualControl_Click">
+                </Button>
+                <md:PackIcon Kind="Apps" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" MouseDown="btnManualControl_Click"/>
+                <TextBlock Text="Manual Control" FontSize="16" Height="20" Foreground="White"
+                           Margin="90,0,0,0" MouseDown="btnManualControl_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="7" Background="#2E4053">
+                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
+                        x:Name="btnSetting" Click="btnSetting_Click">
+                </Button>
+                <md:PackIcon Kind="CogSyncOutline" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" MouseDown="btnSetting_Click"/>
+                <TextBlock Text="Setting" FontSize="16" Height="20" Foreground="White"
+                           Margin="90,0,0,0" MouseDown="btnSetting_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+
+            <Grid Grid.Row="6" Background="#2E4053">
+                <Button Height="75" x:Name="btnHelp" Click="btnHelp_Click"  VerticalAlignment="Top"
+                        Background="#2E4053" BorderBrush="#2E4053">
+                </Button>
+                <md:PackIcon Kind="LinkVariant" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" MouseDown="btnHelp_Click"/>
+                <TextBlock Text="Link System" FontSize="16" Height="20" Margin="90,0,0,0" 
+                               MouseDown="btnHelp_Click" Foreground="White"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+
+            <Grid Grid.Row="8" Background="#2E4053">
+                <Button Height="69" x:Name="btnExit" Click="btnExit_Click"  VerticalAlignment="Top"
+                        Background="#2E4053" BorderBrush="#2E4053" >
+                </Button>
+                <md:PackIcon Kind="ExitToApp" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
+                                         Margin="30,0,0,0" MouseDown="btnExit_Click"/>
+                <TextBlock Text="Exit" FontSize="16" Height="20" Margin="90,0,0,0" 
+                               Foreground="White" MouseDown="btnExit_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+            <Grid Grid.Row="9" Background="#2E4053">
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+
+            </Grid>
+
+            <Grid Grid.Row="10" Background="#2E4053">
+                <Image Source=".\Resources\Logo user.png"
+                       Width="60" HorizontalAlignment="Left"/>
+                <TextBlock x:Name="lblUser" Text="Trần Tuấn Em" Foreground="White" FontSize="12" Height="15" Margin="60,0,0,0"/>
+                <Image Source=".\Resources\green dot.png"
+                       Height="8" Width="8" HorizontalAlignment="Left" Margin="60,23,0,0" />
+                <TextBlock  Text="Online" FontSize="8" Height="10" Foreground="White"  Margin="70,25,0,0"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            </Grid>
+
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="7*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="0*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="0.6*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="1">
+                            <v:ArcGauge x:Name="AGV_Connect"
+                                    AngleValue="0"
+                                    TotalValue= "1"
+                                    FullValue="1"                                    
+                                    EmptyValue="0"
+                                    ColorArc1Value="#90a4ae"
+                                    ColorArc2Value="#8d6e63"
+                                    ColorText1Value="DarkBlue"
+                                    ColorText2Value="#90a4ae"
+                                    Text1Value="C" 
+                                    Text2Value="D" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="127" Margin="0,-3,0,-15"/>
+                        </Grid>
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5*"/>
+                                <RowDefinition Height="2*"/>
+                            </Grid.RowDefinitions>
+                            <!--<Rectangle  Height="80" Width="1" Fill="Gray" HorizontalAlignment="Left" Margin="0,20"/>-->
+                            <Grid Grid.Row="0" Grid.Column="0">
+                                <Label x:Name="lbl_LoadCount" Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                            </Grid>
+
+                            <Grid Grid.Row="0" Grid.Column="1">
+                                <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"/>
+                                <Label x:Name="lbl_UnloadCount" Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Grid.Column="0">
+                                <Label Content="LOAD" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Grid.Column="1">
+                                <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"/>
+                                <Label Content="UNLOAD" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                            </Grid>
+
+                        </Grid>
+                        <Grid Grid.Column="2">
+                            <v:ArcGauge x:Name="AGV_FullState"
+                                    AngleValue="{Binding Angle_Empty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    FullValue="{Binding Full_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ColorArc1Value="#90a4ae"
+                                    ColorArc2Value="#8d6e63"
+                                    ColorText1Value="DarkBlue"
+                                    ColorText2Value="#90a4ae"                                  
+                                    Text1Value="F" 
+                                    Text2Value="E" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="127"
+                                    TitleValue="CONNECT" Margin="0,-3,0,-15"/>
+
+                        </Grid>
+                        <Grid Grid.Column="3">
+                            <v:ArcGauge x:Name="AGV_RunState"
+                                    AngleValue="{Binding AngleDisconnect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    FullValue="{Binding Run_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    EmptyValue="{Binding Stop_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ColorArc1Value="#90a4ae"
+                                    ColorArc2Value="#8d6e63"
+                                    ColorText1Value="DarkBlue"
+                                    ColorText2Value="#90a4ae"
+                                    Text1Value="R" 
+                                    Text2Value="S" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="127"
+                                    TitleValue="CONNECT" Margin="0,-3,0,-15"/>
+
+                        </Grid>
+                        <Grid Grid.Column="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="0.1*"/>
+                                <RowDefinition Height="1*"/>
+                                <!--<RowDefinition Height="0.1*"/>-->
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Grid.Column="0"  Background="#FFE0EAEA">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="1.5*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Label Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="17" FontWeight="Bold"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Label Content="5 MIN" 
+                                               HorizontalAlignment="Center" VerticalContentAlignment="Center" 
+                                               FontSize="9" Width="32" />
+                                </Grid>
+
+                            </Grid>
+
+                            <Grid Grid.Row="0" Grid.Column="2"  Background="#FFE0EAEA">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="1.5*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Label Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="17" FontWeight="Bold"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Label Content="10 MIN" 
+                                               HorizontalAlignment="Center" VerticalContentAlignment="Center" 
+                                               FontSize="9" Width="38"/>
+                                </Grid>
+
+                            </Grid>
+                            <Grid Grid.Row="2" Grid.Column="0"  Background="#FFE0EAEA">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="1.5*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Label Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="17" FontWeight="Bold"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Label Content="15 MIN" 
+                                               HorizontalAlignment="Center" VerticalContentAlignment="Center" 
+                                               FontSize="9" Width="38"/>
+                                </Grid>
+
+                            </Grid>
+                            <Grid Grid.Row="2" Grid.Column="2"  Background="#FFE0EAEA">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="1.5*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Label Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="17" FontWeight="Bold"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Label Content="20 MIN" 
+                                               HorizontalAlignment="Center" VerticalContentAlignment="Center" 
+                                               FontSize="9" Width="38"/>
+                                </Grid>
+
+                            </Grid>
+
+                        </Grid>
+                        <Grid Grid.Column="5">
+                            <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Left"/>
+                            <v:ArcGauge x:Name="Buffer_FullState"
+                                    AngleValue="{Binding AngleDisconnect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    FullValue="{Binding Full_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ColorArc1Value="#90a4ae"
+                                    ColorArc2Value="#8d6e63"
+                                    ColorText1Value="DarkBlue"
+                                    ColorText2Value="#90a4ae"
+                                    Text1Value="F" 
+                                    Text2Value="E" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="127"
+                                    TitleValue="CONNECT" HorizontalAlignment="Left" Margin="0,-3,0,-15" Width="219" />
+
+                        </Grid>
+                        <!--<Grid Grid.Column="6">
+                                <v:ArcGauge Width="222" 
+                                    AngleValue="{Binding AngleDisconnect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    FullValue="{Binding Full_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ColorArc1Value="#90a4ae"
+                                    ColorArc2Value="#8d6e63"
+                                    ColorText1Value="DarkBlue"
+                                    ColorText2Value="#90a4ae"
+                                    Text1Value="F" 
+                                    Text2Value="E" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="127"
+                                    TitleValue="CONNECT" Margin="1,0,-53,-20" />
+
+                            </Grid>-->
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="5*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <!--<Grid Grid.Column="0">
+                            <Label Content="System" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                        </Grid>-->
+                        <Grid Grid.Column="1">
+                            <Label Content="COMMAND" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Grid.Column="2">
+                            <Label Content="VEHICLE" 
+                                       HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Grid.Column="3">
+                            <Label Content="BUFFER" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                        <!--<Grid Grid.Column="4">
+                                <Label Content="FULL STATE" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                            </Grid>-->
+                        <!--<Grid Grid.Column="5">
+                                <Label Content="FULL STATE" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                            </Grid>
+                            <Grid Grid.Column="7">
+                                <Label Content="FULL STATE" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
+                            </Grid>-->
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid x:Name="Grid_Map" Background="AliceBlue">
+                    <Rectangle Width="1" HorizontalAlignment="Left"/>
+
+                    <StackPanel Name="map" Margin="0,0,0,0" >
+                        <Canvas x:Name="cvs_Map" Margin="100,15,0,0" Height="853"
+                             RenderTransformOrigin="0.5,0.5">
+                            <Canvas.RenderTransform>
+                                <MatrixTransform x:Name="mt"/>
+                            </Canvas.RenderTransform>
+                        </Canvas>
+
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="Grid_AGVDetail">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.5*"/>
+                        <RowDefinition Height="18*"/>
+                        <RowDefinition Height="0.5*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Background="#FFFFFF">
+                        <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
+                               Height="35" Width="35" Margin="20,0,0,0"/>
+                        <TextBlock Text="Chi tiết trạng thái Kho chứa" FontSize="20" FontWeight="DemiBold"
+                              VerticalAlignment="Center" Margin="60,0,0,0" Height="25"/>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <DataGrid x:Name="dtgBFData" IsReadOnly="True"/>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="Grid_CommandHistory" Background="#E8E8E8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.5*"/>
+                        <RowDefinition Height="18*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" Background="White">
+                            <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
+                               Height="35" Width="35" Margin="20,0,0,0"/>
+                            <TextBlock Text="Chi tiết lịch sử thực hiện lệnh vận chuyển" FontSize="20" FontWeight="DemiBold"
+                              VerticalAlignment="Center" Margin="60,0,0,0" Height="25"/>
+                        </Grid>
+
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <DataGrid x:Name="dtgCommandHistory" IsReadOnly="True" 
+                                  SelectedCellsChanged="dtgCommandHistory_SelectedCellsChanged">
+                            <!--<DataGridTextColumn Header="Nombre"
+                          Binding="{Binding Nombre}">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                            </DataGridTextColumn>-->
+                        </DataGrid>
+                    
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="1">
+
+                            <Button x:Name="btnAddCommand" Content="Tạo lệnh" Click="btnAddCommand_Click"  BorderBrush="#9C9C9C" 
+                                    Background="#1d1938" Width="120" Height="35" 
+                                    FontSize="14" Foreground="White" Grid.Column="1"></Button>
+                        </Grid>
+                        <Grid Grid.Column="2">
+
+                            <Button x:Name="btnDeleteCommand" Content="Xóa lệnh" Click="btnDeleteCommand_Click" BorderBrush="#9C9C9C" 
+                                    Background="#1d1938" Width="120" Height="35"
+                                    FontSize="14" Foreground="White" Grid.Column="1"></Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="Grid_Report" Background="White">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.5*"/>
+                        <RowDefinition Height="18*"/>
+                        <RowDefinition Height="1.2*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Background="#FFFFFF">
+                        <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
+                               Height="35" Width="35" Margin="20,0,0,0"/>
+                        <TextBlock Text="Báo cáo hoạt động vận chuyển" FontSize="20" FontWeight="DemiBold"
+                              VerticalAlignment="Center" Margin="60,0,0,0" Height="25"/>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="80*"/>
+                            <ColumnDefinition Width="1*"/>
+
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="0.08*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="0.15*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="0.15*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <v:PieChartExample x:Name="uc_TransferRateChart" MouseDown="uc_TransferRateChart_MouseDown"></v:PieChartExample>
+                                    </Grid>
+                                    <Grid Grid.Column="1">
+                                        <v:PieChartExample x:Name="uc_MaterialChart" MouseDown="uc_MaterialChart_MouseDown"></v:PieChartExample>
+                                    </Grid>
+
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <TextBlock x:Name="lblRate" Text="Tỷ lệ lệnh vận chuyển trong ngày"
+                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
+                                    </Grid>
+                                    <Grid Grid.Column="1">
+                                        <TextBlock x:Name="lblRate1" Text="Tỷ lệ hàng lưu trữ tại kho"
+                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
+                                    </Grid>
+
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <v:TemplatureLineChart x:Name="uc_HistoryByWeek"></v:TemplatureLineChart>
+                                </Grid>
+                                <Grid Grid.Row="3">
+                                    <TextBlock x:Name="lblPh" Text="Biểu đồ trend vận chuyển trong tuần"
+                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="0.15*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="0.15*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <v:TemplatureLineChart x:Name="uc_HistoryByDay"></v:TemplatureLineChart>
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <v:TemplatureLineChart x:Name="uc_AlarmByWeek"></v:TemplatureLineChart>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <TextBlock x:Name="lblTemp" Text="Biểu đồ trend lệnh vận chuyển trong ngày"
+                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
+
+                                </Grid>
+                                <Grid Grid.Row="3">
+                                    <TextBlock x:Name="lblOxy" Text="Tổng hợp lỗi vận hành trong tuần"
+                                        TextAlignment="Center" FontSize="16" FontWeight="Bold" Height="20" />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Button x:Name="btnSendReport" Width="120" Height="40" Content="Gửi báo cáo" FontSize="15"
+                                BorderBrush="#0000AA" Background="#0000AA" Foreground="White"
+                                Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnSendReport_Click"/>
+
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
