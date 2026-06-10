@@ -123,6 +123,11 @@
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\PlcMonitorService.cs" />
+    <Compile Include="Services\PlcService.cs" />
+    <Compile Include="Services\SerialCommunicationService.cs" />
+    <Compile Include="Services\TransportCommandService.cs" />
+    <Compile Include="Services\WarehouseConstants.cs" />
     <Compile Include="ManualControlWindow.xaml.cs">
       <DependentUpon>ManualControlWindow.xaml</DependentUpon>
     </Compile>
