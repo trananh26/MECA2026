@@ -12,13 +12,13 @@ namespace SWM.UI.Themes
             return brush;
         }
 
-        public static readonly Brush BufferEmpty = Brush("#C5D5E4");
-        public static readonly Brush BufferEmptyText = Brush("#2C3E50");
-        public static readonly Brush BufferFull = Brush("#1E7A5C");
+        public static readonly Brush BufferEmpty = Brush("#D4EDDA");
+        public static readonly Brush BufferEmptyText = Brush("#2E5E45");
+        public static readonly Brush BufferFull = Brush("#2E7D5A");
         public static readonly Brush BufferFullText = Brush("#FFFFFF");
 
-        public static readonly Brush MapLink = Brush("#A8B4C0");
-        public static readonly Brush MapNode = Brush("#7F8C9A");
+        public static readonly Brush MapLink = Brush("#8FAF9E");
+        public static readonly Brush MapNode = Brush("#6B8F7E");
 
         public static readonly Brush AgvRun = Brush("#27AE60");
         public static readonly Brush AgvPark = Brush("#E67E22");

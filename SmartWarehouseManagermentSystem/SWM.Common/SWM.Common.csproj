@@ -69,6 +69,7 @@
     <Compile Include="SendEmail.cs" />
     <Compile Include="TransportCommand.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="InventoryAging.cs" />
     <Compile Include="MapData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserInformation.cs" />

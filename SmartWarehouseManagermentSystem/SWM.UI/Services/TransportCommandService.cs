@@ -77,10 +77,10 @@ namespace SWM.UI.Services
             NotifyCommandsChanged();
         }
 
-        // HMI ghi D2350: mỗi lần tăng giá trị tạo một lệnh xuất rồi reset D2350
+        // HMI ghi M33: mỗi lần tăng giá trị tạo một lệnh xuất rồi reset M33
         public void HandleHmiOutputRequest(int outputRequest)
         {
-            if (outputRequest <= 0)
+            if (outputRequest == 0)
             {
                 _oldOutputRequest = 0;
                 return;
@@ -117,12 +117,14 @@ namespace SWM.UI.Services
                     DataRow[] drSource = dtLayout.Select("BFNAME LIKE '%" + CurrentJob.CommandSource + "%'");
                     DataRow[] drDest = dtLayout.Select("BFNAME LIKE '%" + CurrentJob.CommandDest + "%'");
 
-                    if (drSource[0].ItemArray[2].ToString() == "EMPTY"
-                        || (CurrentJob.CommandDestID != WarehouseConstants.OutputPortId && drDest[0].ItemArray[2].ToString() == "FULL"))
+                    if (!PlcService.TryGetBufferSlotId(CurrentJob, out _, out _))
                     {
-                        CurrentJob.CommandID = currentCommandId;
-                        CurrentJob.JobCreat = DateTime.Parse(dtCommand.Rows[0]["JobCreat"].ToString());
-                        BLTransportCommand.DeleteJob(CurrentJob.CommandID, CurrentJob.JobCreat);
+                        CancelPendingJob(currentCommandId, dtCommand.Rows[0]);
+                    }
+                    else if (drSource[0].ItemArray[2].ToString() == "EMPTY"
+                        || (IsImportJob(CurrentJob) && drDest[0].ItemArray[2].ToString() == "FULL"))
+                    {
+                        CancelPendingJob(currentCommandId, dtCommand.Rows[0]);
                     }
                     else
                     {
@@ -133,14 +135,18 @@ namespace SWM.UI.Services
                 }
                 else if (jobStatus != "JOB CREATE")
                 {
-                    _plc.SetDevice("M2000", 0);
+                    _plc.SetDevice("M38", 0);
                     CurrentJob.CommandID = currentCommandId;
                     CurrentJob.CommandStatus = jobStatus;
                     CurrentJob.JobCreat = DateTime.Parse(dtCommand.Rows[0]["JobCreat"].ToString());
                     CurrentJob.JobAssign = DateTime.Parse(dtCommand.Rows[0]["JobAssign"].ToString());
-                    _plc.ApplyJobToPlc(CurrentJob);
-                    BLTransportCommand.UpdateCommandStatus(CurrentJob);
-                    BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, CurrentJob.CommandID);
+
+                    if (_plc.ApplyJobToPlc(CurrentJob))
+                    {
+                        BLTransportCommand.UpdateCommandStatus(CurrentJob);
+                        BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, CurrentJob.CommandID);
+                    }
+
                     NotifyCommandsChanged();
                 }
             }
@@ -168,7 +174,7 @@ namespace SWM.UI.Services
 
                 if (location == portSource && CurrentJob.CommandStatus == "JOB START")
                 {
-                    _plc.SetDevice("M2000", 1);
+                    _plc.SetDevice("M38", 1);
                     CurrentJob.CommandStatus = "TRANSFERING DEST";
                     BLTransportCommand.UpdateCommandStatus(CurrentJob);
                     BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");
@@ -212,9 +218,25 @@ namespace SWM.UI.Services
             CurrentJob.CommandStatus = "JOB START";
             CurrentJob.JobCreat = DateTime.Parse(commandRow["JobCreat"].ToString());
             CurrentJob.JobAssign = DateTime.Now;
-            _plc.ApplyJobToPlc(CurrentJob);
+
+            if (!_plc.ApplyJobToPlc(CurrentJob))
+            {
+                BLTransportCommand.DeleteJob(CurrentJob.CommandID, CurrentJob.JobCreat);
+                return;
+            }
+
             BLTransportCommand.UpdateCommandStatus(CurrentJob);
             BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, CurrentJob.CommandID);
+        }
+
+        private static bool IsImportJob(CurrentTransportCommand job) =>
+            job.CommandSourceID == WarehouseConstants.InputPortId;
+
+        private void CancelPendingJob(string commandId, DataRow commandRow)
+        {
+            CurrentJob.CommandID = commandId;
+            CurrentJob.JobCreat = DateTime.Parse(commandRow["JobCreat"].ToString());
+            BLTransportCommand.DeleteJob(CurrentJob.CommandID, CurrentJob.JobCreat);
         }
 
         private void LoadCurrentJobFromRow(DataRow row)

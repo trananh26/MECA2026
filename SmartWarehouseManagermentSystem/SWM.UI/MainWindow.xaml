@@ -17,7 +17,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"  
         Closing="Window_Closing"  Loaded="Window_Loaded"
         MouseWheel="Window_MouseWheel" WindowState="Maximized">
-    
+
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -117,6 +117,9 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="7*"/>
             </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Background="{StaticResource SurfaceBrush}">
+
+            </Grid>
             <Grid Grid.Row="1" Background="{StaticResource SurfaceBrush}">
                 <Border BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1"/>
                 <Grid>
@@ -363,17 +366,175 @@
             </Grid>
             <Grid Grid.Row="2">
                 <Grid x:Name="Grid_Map" Background="{StaticResource ContentBackgroundBrush}">
-                    <Rectangle Width="1" HorizontalAlignment="Left"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Name="map" Margin="0,0,0,0" >
-                        <Canvas x:Name="cvs_Map" Margin="100,15,0,0" Height="853"
-                             RenderTransformOrigin="0.5,0.5">
-                            <Canvas.RenderTransform>
-                                <MatrixTransform x:Name="mt"/>
-                            </Canvas.RenderTransform>
-                        </Canvas>
+                    <!-- Sơ đồ kho -->
+                    <Grid Grid.Column="0">
+                        <StackPanel Name="map">
+                            <Canvas x:Name="cvs_Map" Margin="60,15,0,0" Height="853"
+                                 RenderTransformOrigin="0.5,0.5">
+                                <Canvas.RenderTransform>
+                                    <MatrixTransform x:Name="mt"/>
+                                </Canvas.RenderTransform>
+                            </Canvas>
+                        </StackPanel>
+                    </Grid>
 
-                    </StackPanel>
+                    <!-- Panel trạng thái kết nối -->
+                    <Border Grid.Column="1" Margin="8,12,12,12"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderLightBrush}"
+                            BorderThickness="1" CornerRadius="6">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="14,12">
+                                <TextBlock Text="SYSTEM MONITOR" FontSize="13" FontWeight="Bold"
+                                           Foreground="{StaticResource PanelHeaderBrush}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="lblConnUpdated" FontSize="10"
+                                           Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,0,0,12"/>
+
+                                <!-- PLC -->
+                                <Border Background="{StaticResource StatBoxBackgroundBrush}" CornerRadius="4"
+                                        Padding="10,8" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="PLC Mitsubishi" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="MX Component" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Ellipse x:Name="indPlcConn" Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="lblPlcConn" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Network Ping" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Ellipse x:Name="indPlcPing" Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="lblPlcPing" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock x:Name="lblPlcAddress" FontSize="10" Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Serial -->
+                                <Border Background="{StaticResource StatBoxBackgroundBrush}" CornerRadius="4"
+                                        Padding="10,8" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="Serial Port" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Cổng COM" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Ellipse x:Name="indSerial" Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="lblSerialStatus" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock x:Name="lblSerialConfig" FontSize="10" Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,4,0,0"/>
+                                        <TextBlock Text="Trigger: C1x → nhập IP01" FontSize="10"
+                                                   Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Database -->
+                                <Border Background="{StaticResource StatBoxBackgroundBrush}" CornerRadius="4"
+                                        Padding="10,8" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="Database" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="SQL Server" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Ellipse x:Name="indDatabase" Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="lblDatabaseStatus" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock Text="SmartWarehouse" FontSize="10"
+                                                   Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Thiết bị -->
+                                <Border Background="{StaticResource StatBoxBackgroundBrush}" CornerRadius="4"
+                                        Padding="10,8" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="Thiết bị" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="AGV" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <TextBlock x:Name="lblAgvInfo" Grid.Column="1" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        </Grid>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="IP01" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <TextBlock x:Name="lblIp01State" Grid.Column="1" FontSize="11" FontWeight="SemiBold"/>
+                                        </Grid>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="OP01" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <TextBlock x:Name="lblOp01State" Grid.Column="1" FontSize="11" FontWeight="SemiBold"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Lệnh hiện tại -->
+                                <Border Background="{StaticResource StatBoxBackgroundBrush}" CornerRadius="4"
+                                        Padding="10,8">
+                                    <StackPanel>
+                                        <TextBlock Text="Lệnh hiện tại" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Trạng thái" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <TextBlock x:Name="lblJobStatus" Grid.Column="1" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        </Grid>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Tuyến" FontSize="11" Foreground="{StaticResource PanelMutedTextBrush}"/>
+                                            <TextBlock x:Name="lblJobRoute" Grid.Column="1" FontSize="10" TextWrapping="Wrap"
+                                                       Foreground="{StaticResource GaugeLabelBrush}"/>
+                                        </Grid>
+                                        <TextBlock x:Name="lblJobId" FontSize="9" Foreground="{StaticResource PanelMutedTextBrush}"
+                                                   Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
 
                 <Grid x:Name="Grid_AGVDetail">
@@ -423,7 +584,7 @@
                                 </DataGridTextColumn.HeaderStyle>
                             </DataGridTextColumn>-->
                         </DataGrid>
-                    
+
                     </Grid>
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>

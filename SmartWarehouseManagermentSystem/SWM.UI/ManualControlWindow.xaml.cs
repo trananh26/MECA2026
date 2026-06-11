@@ -1,5 +1,6 @@
 ﻿using SWM.BL;
 using SWM.Common;
+using SWM.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,8 +46,18 @@ namespace SWM.UI
         }
         private void btt_ok_Click(object sender, RoutedEventArgs e)
         {
-            if (txb_Source.Text !="" && txb_Dest.Text !="")
+            if (txb_Source.Text != "" && txb_Dest.Text != "")
             {
+                bool isImport = _idSource == WarehouseConstants.InputPortId;
+                bool isExport = _idDest == WarehouseConstants.OutputPortId;
+
+                if (!isImport && !isExport)
+                {
+                    MessageBox.Show("Chỉ hỗ trợ lệnh IP01 → ô kho hoặc ô kho → OP01.", "Warning",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 TransportCommand Transport = new TransportCommand();
                 Transport.AGVID = "105";
                 Transport.STKID = "B1STK01";

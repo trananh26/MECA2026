@@ -43,6 +43,7 @@ namespace SWM.UI.Services
                 // AGV: vị trí D800, có hàng M510
                 string agvFullState = _plc.GetDeviceInt("M510") == 1 ? "FULL" : "EMPTY";
                 string agvLocation = _plc.GetDeviceInt("D800").ToString();
+                agvLocation = "3";
                 _transport.AgvLocation = agvLocation;
 
                 if (agvLocation != _oldLocation || agvFullState != _oldFullState)
@@ -79,8 +80,8 @@ namespace SWM.UI.Services
                     _oldOutputState = outputState;
                 }
 
-                // HMI bấm xuất: D2350 > 0 → tạo lệnh xuất slot FULL đầu tiên
-                _transport.HandleHmiOutputRequest(_plc.GetDeviceInt("D2350"));
+                // HMI bấm xuất: M33 > 0 → tạo lệnh xuất slot FULL đầu tiên
+                _transport.HandleHmiOutputRequest(_plc.GetDeviceInt("M33"));
             }
             catch (Exception)
             {

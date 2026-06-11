@@ -11,6 +11,11 @@ namespace SWM.UI.Services
     internal sealed class SerialCommunicationService : IDisposable
     {
         private readonly SerialPort _port = new SerialPort();
+
+        public bool IsConnected => _port.IsOpen;
+        public string PortName => _port.PortName;
+        public int BaudRate => _port.BaudRate;
+
         public event Action ImportRequested;
         public event Action<string> ErrorOccurred;
 

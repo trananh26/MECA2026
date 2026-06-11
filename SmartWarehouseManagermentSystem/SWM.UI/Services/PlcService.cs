@@ -18,6 +18,8 @@ namespace SWM.UI.Services
 
         public string AgvId { get; } = WarehouseConstants.AgvId;
         public string IpAddress { get; }
+        public bool IsConnected { get; private set; }
+        public bool IsNetworkReachable { get; private set; }
 
         public PlcService(string ipAddress)
         {
@@ -31,12 +33,15 @@ namespace SWM.UI.Services
             {
                 _plc.ActLogicalStationNumber = AppConfiguration.Current.Plc.StationNumber;
                 _plc.Open();
+                IsConnected = true;
+                RefreshNetworkStatus();
                 BLUpdateAGVStatus.UpdateAGVStatus(AgvId, "2", "EMPTY");
                 MessageBox.Show("Kết nối PLC thành công", "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
                 return true;
             }
             catch (Exception)
             {
+                IsConnected = false;
                 MessageBox.Show("Không kết nối được với PLC. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
                 return false;
             }
@@ -52,26 +57,26 @@ namespace SWM.UI.Services
             SetDevice("M845", _aliveToggle % 2 == 0 ? 1 : 0);
         }
 
-        public void Ping()
+        // Kiểm tra ping PLC (không popup — dùng cho panel trạng thái)
+        public void RefreshNetworkStatus()
         {
             try
             {
-                PingReply reply = new Ping().Send(IpAddress);
-                if (reply.Status != IPStatus.Success)
-                {
+                PingReply reply = new Ping().Send(IpAddress, 1000);
+                bool online = reply.Status == IPStatus.Success;
+                if (!online)
                     AlarmLog.LogAlarmToDatabase("04");
-                    MessageBox.Show("Không kết nối được với PLC. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                IsNetworkReachable = online;
             }
             catch (Exception)
             {
                 AlarmLog.LogAlarmToDatabase("04");
-                MessageBox.Show("Không kết nối được với PLC. Vui lòng kiểm tra lại kết nối", "Warning", MessageBoxButton.OK, MessageBoxImage.Information);
+                IsNetworkReachable = false;
             }
         }
 
         // Xóa cờ yêu cầu xuất từ HMI sau khi đã tạo lệnh
-        public void ResetHmiOutputRequest() => SetDevice("D2350", 0);
+        public void ResetHmiOutputRequest() => SetDevice("M33", 0);
 
         // IP01 có hàng trên băng tải (PLC M2300 = 1)
         public bool IsInputPortFull() => GetDeviceInt("M2300") == 1;
@@ -85,25 +90,45 @@ namespace SWM.UI.Services
 
         public void SetDevice(string address, int value) => _plc.SetDevice(address, value);
 
-        // Ghi lệnh vận chuyển lên PLC: loại lệnh (1=nhập, 2=xuất, 3=thẳng IP→OP, 4=nội bộ) + nguồn/đích
-        public void ApplyJobToPlc(CurrentTransportCommand job)
+        // Ghi lệnh lên PLC: 1=IP01→BF (D500=ô đích), 2=BF→OP01 (D500=ô nguồn)
+        public bool ApplyJobToPlc(CurrentTransportCommand job)
         {
-            SetDevice("M2000", 0);
+            if (!TryGetBufferSlotId(job, out int bufferSlotId, out int commandType))
+                return false;
 
-            int commandType;
-            if (job.CommandSourceID == WarehouseConstants.InputPortId && job.CommandDestID != WarehouseConstants.OutputPortId)
-                commandType = 1; // nhập kho
-            else if (job.CommandDestID == WarehouseConstants.OutputPortId && job.CommandSourceID != WarehouseConstants.InputPortId)
-                commandType = 2; // xuất kho
-            else if (job.CommandSourceID == WarehouseConstants.InputPortId && job.CommandDestID == WarehouseConstants.OutputPortId)
-                commandType = 3; // IP01 → OP01
-            else
-                commandType = 4; // di chuyển nội bộ BF
+            SetDevice("M38", 0);
+            SetDevice("D502", commandType);
+            SetDevice("D500", bufferSlotId);
+            //SetDevice("D2100", int.Parse(job.CommandSourceID));
+            //SetDevice("D2150", int.Parse(job.CommandDestID));
+            SetDevice("M38", 1);
+            return true;
+        }
 
-            SetDevice("D3000", commandType);
-            SetDevice("D2100", int.Parse(job.CommandSourceID));
-            SetDevice("D2150", int.Parse(job.CommandDestID));
-            SetDevice("M2000", 1); //bắt đầu thực hiện nhập/xuất/chuyển hàng
+        internal static bool TryGetBufferSlotId(CurrentTransportCommand job, out int bufferSlotId, out int commandType)
+        {
+            bufferSlotId = 0;
+            commandType = 0;
+
+            if (job.CommandSourceID == WarehouseConstants.InputPortId
+                && job.CommandDestID != WarehouseConstants.OutputPortId
+                && job.CommandDestID != WarehouseConstants.InputPortId)
+            {
+                commandType = 1;
+                bufferSlotId = int.Parse(job.CommandDestID);
+                return true;
+            }
+
+            if (job.CommandDestID == WarehouseConstants.OutputPortId
+                && job.CommandSourceID != WarehouseConstants.InputPortId
+                && job.CommandSourceID != WarehouseConstants.OutputPortId)
+            {
+                commandType = 2;
+                bufferSlotId = int.Parse(job.CommandSourceID);
+                return true;
+            }
+
+            return false;
         }
 
         public void Dispose()
@@ -111,6 +136,7 @@ namespace SWM.UI.Services
             try
             {
                 _plc.Close();
+                IsConnected = false;
             }
             catch (Exception)
             {

@@ -29,6 +29,7 @@ namespace SWM.UI
         private readonly TransportCommandService _transportService;
         private readonly SerialCommunicationService _serialService;
         private readonly PlcMonitorService _plcMonitor;
+        private readonly ConnectionStatusService _connectionStatus = new ConnectionStatusService();
         private readonly DispatcherTimer _conveyorTimer;
 
         // --- Map / layout UI ---
@@ -71,6 +72,7 @@ namespace SWM.UI
             Update_AGV("2");
 
             StartTimers();
+            UpdateConnectionPanel();
         }
 
         // Nối event service → cập nhật UI trên UI thread
@@ -100,12 +102,51 @@ namespace SWM.UI
             plcAliveTimer.Start();
 
             var monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-            monitorTimer.Tick += (s, e) => _plcMonitor.Poll();
+            monitorTimer.Tick += (s, e) =>
+            {
+                _plcMonitor.Poll();
+                UpdateConnectionPanel();
+            };
             monitorTimer.Start();
 
             var pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-            pingTimer.Tick += (s, e) => _plcService.Ping();
+            pingTimer.Tick += (s, e) => _plcService.RefreshNetworkStatus();
             pingTimer.Start();
+        }
+
+        // Cập nhật panel trạng thái kết nối bên phải dashboard
+        private void UpdateConnectionPanel()
+        {
+            ConnectionStatusInfo info = _connectionStatus.Collect(_plcService, _serialService, _transportService);
+
+            lblConnUpdated.Text = "Cập nhật: " + info.LastUpdated.ToString("HH:mm:ss");
+
+            SetStatusIndicator(indPlcConn, lblPlcConn, info.PlcConnected);
+            SetStatusIndicator(indPlcPing, lblPlcPing, info.PlcNetworkOnline);
+            lblPlcAddress.Text = info.PlcIp + "  |  Station " + info.PlcStation;
+
+            SetStatusIndicator(indSerial, lblSerialStatus, info.SerialConnected, "OPEN", "CLOSED");
+            lblSerialConfig.Text = info.SerialPort + "  |  " + info.SerialBaudRate + " bps";
+
+            SetStatusIndicator(indDatabase, lblDatabaseStatus, info.DatabaseConnected);
+
+            lblAgvInfo.Text = info.AgvId + "  |  Node " + info.AgvLocation + "  |  " + info.AgvLoadState;
+            lblIp01State.Text = info.InputPortState;
+            lblOp01State.Text = info.OutputPortState;
+            lblIp01State.Foreground = info.InputPortState == "FULL" ? ThemeColors.BufferFull : ThemeColors.BufferEmptyText;
+            lblOp01State.Foreground = info.OutputPortState == "FULL" ? ThemeColors.BufferFull : ThemeColors.BufferEmptyText;
+
+            lblJobStatus.Text = info.CurrentCommandStatus;
+            lblJobRoute.Text = info.CurrentCommandRoute;
+            lblJobId.Text = info.CurrentCommandId;
+        }
+
+        private void SetStatusIndicator(System.Windows.Shapes.Ellipse indicator, TextBlock label, bool isOnline, string onlineText = "ONLINE", string offlineText = "OFFLINE")
+        {
+            var brush = isOnline ? (Brush)FindResource("StatusOnlineBrush") : (Brush)FindResource("StatusOfflineBrush");
+            indicator.Fill = brush;
+            label.Text = isOnline ? onlineText : offlineText;
+            label.Foreground = brush;
         }
 
         // C1x từ serial: chỉ tạo lệnh khi IP01 (M2300) đang có hàng và còn ô BF trống
@@ -288,7 +329,7 @@ namespace SWM.UI
 
                     TranslateTransform transform = new TranslateTransform();
                     _agvControls[agvId].RenderTransform = transform;
-                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 565, TimeSpan.FromSeconds(2)));
+                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 515, TimeSpan.FromSeconds(2)));
                     transform.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(3, 3, TimeSpan.FromSeconds(2)));
                     _agvX = agv.X - 168;
 
@@ -478,8 +519,10 @@ namespace SWM.UI
                     else
                         emptyCount++;
 
-                    TimeSpan aging = DateTime.Now - DateTime.Parse(dtLayout.Rows[i]["UPDATETIME"].ToString());
-                    buffer.AGINGTIME = (aging.Days * 24).ToString() + ":" + aging.Minutes;
+                    // Thời gian tồn kho = Now - UPDATETIME (chỉ ô đang FULL)
+                    buffer.AGINGTIME = buffer.FULLSTATE == "FULL"
+                        ? InventoryAging.FormatFromUpdateTime(dtLayout.Rows[i]["UPDATETIME"].ToString())
+                        : string.Empty;
                     _buffers.Add(buffer);
                 }
 
@@ -518,6 +561,7 @@ namespace SWM.UI
                     }
                     else
                     {
+                        _bufferControls[bufferId].Aging_Time = string.Empty;
                         _bufferControls[bufferId].Background = ThemeColors.BufferEmpty;
                         _bufferControls[bufferId].rtgSlottray.Foreground = ThemeColors.BufferEmptyText;
                     }

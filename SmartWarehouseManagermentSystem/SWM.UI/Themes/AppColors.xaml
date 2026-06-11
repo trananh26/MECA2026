@@ -8,22 +8,23 @@
     <SolidColorBrush x:Key="SidebarBorderBrush" Color="#2D3A4F"/>
 
     <!-- Nền chính -->
-    <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#EDF1F5"/>
-    <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="BorderLightBrush" Color="#D0DAE5"/>
-    <SolidColorBrush x:Key="BorderMediumBrush" Color="#B0BEC9"/>
-    <SolidColorBrush x:Key="StatBoxBackgroundBrush" Color="#E8EEF3"/>
+    <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#EEF3F0"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FAFCFB"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#C5D9CE"/>
+    <SolidColorBrush x:Key="BorderMediumBrush" Color="#9DB5A8"/>
+    <SolidColorBrush x:Key="StatBoxBackgroundBrush" Color="#F4F8F6"/>
 
     <!-- Nút -->
     <SolidColorBrush x:Key="ButtonPrimaryBrush" Color="#2C3E50"/>
     <SolidColorBrush x:Key="ButtonPrimaryBorderBrush" Color="#3D5166"/>
 
     <!-- Buffer / kho -->
-    <SolidColorBrush x:Key="BufferEmptyBrush" Color="#C5D5E4"/>
-    <SolidColorBrush x:Key="BufferEmptyTextBrush" Color="#2C3E50"/>
-    <SolidColorBrush x:Key="BufferFullBrush" Color="#1E7A5C"/>
+    <SolidColorBrush x:Key="BufferEmptyBrush" Color="#D4EDDA"/>
+    <SolidColorBrush x:Key="BufferEmptyTextBrush" Color="#2E5E45"/>
+    <SolidColorBrush x:Key="BufferEmptyBorderBrush" Color="#A8C9B4"/>
+    <SolidColorBrush x:Key="BufferFullBrush" Color="#2E7D5A"/>
     <SolidColorBrush x:Key="BufferFullTextBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="BufferDetailTextBrush" Color="#D5E3EF"/>
+    <SolidColorBrush x:Key="BufferDetailTextBrush" Color="#E2F2E9"/>
 
     <!-- Gauge -->
     <SolidColorBrush x:Key="GaugeArcPrimaryBrush" Color="#5DADE2"/>
@@ -33,7 +34,14 @@
     <SolidColorBrush x:Key="GaugeLegendBrush" Color="#5DADE2"/>
 
     <!-- Map -->
-    <SolidColorBrush x:Key="MapLinkBrush" Color="#A8B4C0"/>
-    <SolidColorBrush x:Key="MapNodeBrush" Color="#7F8C9A"/>
+    <SolidColorBrush x:Key="MapLinkBrush" Color="#8FAF9E"/>
+    <SolidColorBrush x:Key="MapNodeBrush" Color="#6B8F7E"/>
+
+    <!-- Trạng thái kết nối -->
+    <SolidColorBrush x:Key="StatusOnlineBrush" Color="#27AE60"/>
+    <SolidColorBrush x:Key="StatusOfflineBrush" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="StatusWarningBrush" Color="#E67E22"/>
+    <SolidColorBrush x:Key="PanelHeaderBrush" Color="#2C3E50"/>
+    <SolidColorBrush x:Key="PanelMutedTextBrush" Color="#6B7C93"/>
 
 </ResourceDictionary>
