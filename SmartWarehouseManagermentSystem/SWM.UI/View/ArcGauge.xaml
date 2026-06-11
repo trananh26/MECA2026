@@ -46,7 +46,7 @@
             <ed:Arc Name="arc2" Fill="{Binding ElementName=_this, Path = ColorArc2Value}" Height="90" Width="90" Stretch="None" ArcThickness="15" ArcThicknessUnit="Pixel"
                 EndAngle="{Binding ElementName = _this,Path= AngleValue ,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" Margin="15">
             </ed:Arc>
-            <ed:Arc Name="arc3" Fill="CornflowerBlue"  Height="48" 
+            <ed:Arc Name="arc3" Fill="{StaticResource GaugeCenterBrush}" Height="48" 
                     Stretch="None" ArcThickness="20" 
                     ArcThicknessUnit="Percent"
                 EndAngle="360" Margin="36">
@@ -98,14 +98,14 @@
                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" Margin="14,-1,14,1"></Label>
             </Grid>
             <Grid Grid.Row="2" Grid.Column="1">
-                <Label FontSize="12" Foreground="DarkBlue"  
+                <Label FontSize="12" Foreground="{StaticResource GaugeLabelBrush}"
                        HorizontalContentAlignment="Left"
                        VerticalContentAlignment="Center"
                        FontWeight="Bold"
                     Content="{Binding ElementName = _this,Path= FullValue ,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
             </Grid>
             <Grid Grid.Row="3" Grid.Column="1" >
-                <Label FontSize="12" Foreground="DarkBlue"  
+                <Label FontSize="12" Foreground="{StaticResource GaugeLabelBrush}"  
                        HorizontalContentAlignment="Left"
                        VerticalContentAlignment="Center"
                        FontWeight="Bold"

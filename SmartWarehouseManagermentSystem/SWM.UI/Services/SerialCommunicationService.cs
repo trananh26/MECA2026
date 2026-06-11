@@ -1,23 +1,23 @@
-using SWM.Common;
+using SWM.UI.Config;
 using System;
 using System.IO.Ports;
 using System.Windows;
 
 namespace SWM.UI.Services
 {
+    /// <summary>
+    /// Cổng COM: tin kết thúc bằng 'x' — "1"/"2" băng tải, "C1x" yêu cầu lấy hàng IP01 (khi băng tải đã có hàng).
+    /// </summary>
     internal sealed class SerialCommunicationService : IDisposable
     {
         private readonly SerialPort _port = new SerialPort();
-
-        public event Action ConveyorInRequested;
-        public event Action ConveyorOutRequested;
         public event Action ImportRequested;
         public event Action<string> ErrorOccurred;
 
         public void Connect()
         {
-            _port.PortName = clsFileIO.ReadValue("COM_SWMPORT");
-            _port.BaudRate = int.Parse(clsFileIO.ReadValue("BAURATE"));
+            _port.PortName = AppConfiguration.Current.Serial.PortName;
+            _port.BaudRate = AppConfiguration.Current.Serial.BaudRate;
             _port.DataReceived += OnDataReceived;
 
             try
@@ -41,6 +41,7 @@ namespace SWM.UI.Services
                     return;
                 }
 
+                // Ví dụ "C1x" → ReadTo("x") trả về "C1"
                 string data = _port.ReadTo("x").Trim();
                 ProcessMessage(data);
             }
@@ -52,12 +53,13 @@ namespace SWM.UI.Services
 
         private void ProcessMessage(string data)
         {
-            if (data == "1")
-                ConveyorInRequested?.Invoke();
-            else if (data == "2")
-                ConveyorOutRequested?.Invoke();
-            else if (data.StartsWith("C1"))
-                ImportRequested?.Invoke();
+            if (IsImportRequest(data))
+                ImportRequested?.Invoke();          // C1x → kiểm tra IP01 FULL rồi tạo lệnh nhập kho
+        }
+
+        private static bool IsImportRequest(string data)
+        {
+            return string.Equals(data, "C1", StringComparison.OrdinalIgnoreCase);
         }
 
         public void Dispose()

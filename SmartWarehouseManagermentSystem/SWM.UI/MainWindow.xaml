@@ -13,7 +13,7 @@
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignPaper}"
+        Background="{StaticResource ContentBackgroundBrush}"
         FontFamily="{DynamicResource MaterialDesignFont}"  
         Closing="Window_Closing"  Loaded="Window_Loaded"
         MouseWheel="Window_MouseWheel" WindowState="Maximized">
@@ -22,89 +22,92 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="6.5*"/>
+            <ColumnDefinition Width="7.5*"/>
         </Grid.ColumnDefinitions>
 
         <!--Tab điều khiển-->
         <Grid Grid.Column="0">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="3*"/>
+                <RowDefinition Height="3.5*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
-                <RowDefinition Height="10*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="14*"/>
                 <RowDefinition Height="1.5*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Background="#2E4053">
+            <Grid Grid.Row="0" Background="{StaticResource SidebarBackgroundBrush}">
                 <Image Source=".\Resources\TA logo2.png"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="1" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                        x:Name="btnDashboard" Click="btnDashboard_Click" >
-                </Button>
-                <md:PackIcon Kind="ViewDashboardOutline" Width="35" Height="35" VerticalAlignment="Center" 
-                                         MouseDown="btnDashboard_Click" Margin="30,0,0,0" Background="#2E4053"/>
-                <TextBlock Text="Dashboard" FontSize="16" Height="20" Margin="90,0,0,0" Foreground="White"
+            <Grid Grid.Row="1" Background="{StaticResource SidebarBackgroundBrush}">
+                <Button Height="69" Background="Transparent" BorderBrush="Transparent"
+                        x:Name="btnDashboard" Click="btnDashboard_Click" />
+                <md:PackIcon Kind="ViewDashboardOutline" Width="35" Height="35" VerticalAlignment="Center" Foreground="{StaticResource SidebarForegroundBrush}"
+                             MouseDown="btnDashboard_Click" Margin="30,0,0,0"/>
+                <TextBlock Text="Dashboard" FontSize="16" Height="20" Margin="90,0,0,0" Foreground="{StaticResource SidebarForegroundBrush}"
                            MouseDown="btnDashboard_Click"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="2" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                        x:Name="btnDetail" Click="btnBufferDetail_Click">
-                </Button>
-                <md:PackIcon Kind="Finance" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" x:Name="picDetail" MouseDown="btnBufferDetail_Click"/>
-                <TextBlock Text=" STK Detail" FontSize="16" Height="20" Foreground="White"
+            <Grid Grid.Row="2" Background="{StaticResource SidebarBackgroundBrush}">
+                <Button Height="69" Background="Transparent" BorderBrush="Transparent"
+                        x:Name="btnDetail" Click="btnBufferDetail_Click"/>
+                <md:PackIcon Kind="Finance" Width="35" Height="35" VerticalAlignment="Center" Foreground="{StaticResource SidebarForegroundBrush}"
+                             Margin="30,0,0,0" x:Name="picDetail" MouseDown="btnBufferDetail_Click"/>
+                <TextBlock Text=" STK Detail" FontSize="16" Height="20" Foreground="{StaticResource SidebarForegroundBrush}"
                            MouseDown="btnBufferDetail_Click" Margin="90,0,0,0"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="3" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                        x:Name="btnHistory" Click="btnCommandHistory_Click">
-                </Button>
-                <md:PackIcon Kind="ArrangeSendBackward" Width="35" Height="35" VerticalAlignment="Center" 
-                                         Margin="30,0,0,0" MouseDown="btnCommandHistory_Click" Background="#2E4053"/>
-                <TextBlock Text="Job History" FontSize="16" Height="20" Margin="90,0,0,0" 
-                               MouseDown="btnCommandHistory_Click" Foreground="White"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            <Grid Grid.Row="3" Background="{StaticResource SidebarBackgroundBrush}">
+                <Button Height="69" Background="Transparent" BorderBrush="Transparent"
+                        x:Name="btnHistory" Click="btnCommandHistory_Click"/>
+                <md:PackIcon Kind="ArrangeSendBackward" Width="35" Height="35" VerticalAlignment="Center" Foreground="{StaticResource SidebarForegroundBrush}"
+                             Margin="30,0,0,0" MouseDown="btnCommandHistory_Click"/>
+                <TextBlock Text="Job History" FontSize="16" Height="20" Margin="90,0,0,0" Foreground="{StaticResource SidebarForegroundBrush}"
+                           MouseDown="btnCommandHistory_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="4" Background="#2E4053">
-                <Button Height="69"  Background="#2E4053" BorderBrush="#2E4053"
-                        x:Name="btnControl" Click="btnManualControl_Click">
-                </Button>
-                <md:PackIcon Kind="Apps" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" MouseDown="btnManualControl_Click"/>
-                <TextBlock Text="Manual Control" FontSize="16" Height="20" Foreground="White"
+            <Grid Grid.Row="4" Background="{StaticResource SidebarBackgroundBrush}">
+                <Button Height="69" Background="Transparent" BorderBrush="Transparent"
+                        x:Name="btnControl" Click="btnManualControl_Click"/>
+                <md:PackIcon Kind="Apps" Width="35" Height="35" VerticalAlignment="Center" Foreground="{StaticResource SidebarForegroundBrush}"
+                             Margin="30,0,0,0" MouseDown="btnManualControl_Click"/>
+                <TextBlock Text="Manual Control" FontSize="16" Height="20" Foreground="{StaticResource SidebarForegroundBrush}"
                            Margin="90,0,0,0" MouseDown="btnManualControl_Click"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="5" Background="#2E4053">
-                <Button Height="69" x:Name="btnExit" Click="btnExit_Click"  VerticalAlignment="Top"
-                        Background="#2E4053" BorderBrush="#2E4053" >
-                </Button>
-                <md:PackIcon Kind="ExitToApp" Width="35" Height="35" VerticalAlignment="Center" Background="#2E4053"
-                                         Margin="30,0,0,0" MouseDown="btnExit_Click"/>
-                <TextBlock Text="Exit" FontSize="16" Height="20" Margin="90,0,0,0" 
-                               Foreground="White" MouseDown="btnExit_Click"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            <Grid Grid.Row="5" Background="{StaticResource SidebarBackgroundBrush}">
+                <Button Height="69" x:Name="btnExit" Click="btnExit_Click" VerticalAlignment="Top"
+                        Background="Transparent" BorderBrush="Transparent" />
+                <md:PackIcon Kind="ExitToApp" Width="35" Height="35" VerticalAlignment="Center" Foreground="{StaticResource SidebarForegroundBrush}"
+                             Margin="30,0,0,0" MouseDown="btnExit_Click"/>
+                <TextBlock Text="Exit" FontSize="16" Height="20" Margin="90,0,0,0"
+                           Foreground="{StaticResource SidebarForegroundBrush}" MouseDown="btnExit_Click"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-            <Grid Grid.Row="6" Background="#2E4053">
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
-
+            <Grid Grid.Row="6" Background="{StaticResource SidebarBackgroundBrush}">
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
-
-            <Grid Grid.Row="7" Background="#2E4053">
-                <Image Source=".\Resources\Logo user.png"
-                       Width="60" HorizontalAlignment="Left"/>
-                <TextBlock x:Name="lblUser" Text="Trần Tuấn Em" Foreground="White" FontSize="12" Height="15" Margin="60,0,0,0"/>
-                <Image Source=".\Resources\green dot.png"
-                       Height="8" Width="8" HorizontalAlignment="Left" Margin="60,23,0,0" />
-                <TextBlock  Text="Online" FontSize="8" Height="10" Foreground="White"  Margin="70,25,0,0"/>
-                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="Gray"></Rectangle>
+            <Grid Grid.Row="7" Background="{StaticResource SidebarBackgroundBrush}">
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
+            </Grid>
+            <Grid Grid.Row="8" Background="{StaticResource SidebarBackgroundBrush}">
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
+            </Grid>
+            <Grid Grid.Row="9" Background="{StaticResource SidebarBackgroundBrush}">
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
+            </Grid>
+            <Grid Grid.Row="10" Background="{StaticResource SidebarBackgroundBrush}">
+                <Image Source=".\Resources\Logo user.png" Width="60" HorizontalAlignment="Left"/>
+                <TextBlock x:Name="lblUser" Text="Trần Tuấn Em" Foreground="{StaticResource SidebarForegroundBrush}" FontSize="12" Height="15" Margin="60,0,0,0"/>
+                <Ellipse Height="8" Width="8" HorizontalAlignment="Left" Margin="60,23,0,0" Fill="#27AE60"/>
+                <TextBlock Text="Online" FontSize="8" Height="10" Foreground="{StaticResource SidebarMutedBrush}" Margin="70,25,0,0"/>
+                <Rectangle StrokeThickness="1" Width="1" HorizontalAlignment="Right" Fill="{StaticResource SidebarBorderBrush}"/>
             </Grid>
 
         </Grid>
@@ -114,7 +117,8 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="7*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="1" >
+            <Grid Grid.Row="1" Background="{StaticResource SurfaceBrush}">
+                <Border BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1"/>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5*"/>
@@ -139,10 +143,10 @@
                                     TotalValue= "1"
                                     FullValue="1"                                    
                                     EmptyValue="0"
-                                    ColorArc1Value="#90a4ae"
-                                    ColorArc2Value="#8d6e63"
-                                    ColorText1Value="DarkBlue"
-                                    ColorText2Value="#90a4ae"
+                                    ColorArc1Value="{StaticResource GaugeArcPrimaryBrush}"
+                                    ColorArc2Value="{StaticResource GaugeArcSecondaryBrush}"
+                                    ColorText1Value="{StaticResource GaugeLegendBrush}"
+                                    ColorText2Value="{StaticResource GaugeArcSecondaryBrush}"
                                     Text1Value="C" 
                                     Text2Value="D" 
                                     VerticalAlignment="Bottom" 
@@ -163,7 +167,7 @@
                             </Grid>
 
                             <Grid Grid.Row="0" Grid.Column="1">
-                                <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"/>
+                                <Rectangle Width="1" Fill="{StaticResource BorderLightBrush}" HorizontalAlignment="Right"/>
                                 <Label x:Name="lbl_UnloadCount" Content="000" HorizontalAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold"/>
                             </Grid>
 
@@ -172,7 +176,7 @@
                             </Grid>
 
                             <Grid Grid.Row="2" Grid.Column="1">
-                                <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"/>
+                                <Rectangle Width="1" Fill="{StaticResource BorderLightBrush}" HorizontalAlignment="Right"/>
                                 <Label Content="UNLOAD" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold"/>
                             </Grid>
 
@@ -183,10 +187,10 @@
                                     TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     FullValue="{Binding Full_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ColorArc1Value="#90a4ae"
-                                    ColorArc2Value="#8d6e63"
-                                    ColorText1Value="DarkBlue"
-                                    ColorText2Value="#90a4ae"                                  
+                                    ColorArc1Value="{StaticResource GaugeArcPrimaryBrush}"
+                                    ColorArc2Value="{StaticResource GaugeArcSecondaryBrush}"
+                                    ColorText1Value="{StaticResource GaugeLegendBrush}"
+                                    ColorText2Value="{StaticResource GaugeArcSecondaryBrush}"
                                     Text1Value="F" 
                                     Text2Value="E" 
                                     VerticalAlignment="Bottom" 
@@ -200,10 +204,10 @@
                                     TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     FullValue="{Binding Run_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     EmptyValue="{Binding Stop_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ColorArc1Value="#90a4ae"
-                                    ColorArc2Value="#8d6e63"
-                                    ColorText1Value="DarkBlue"
-                                    ColorText2Value="#90a4ae"
+                                    ColorArc1Value="{StaticResource GaugeArcPrimaryBrush}"
+                                    ColorArc2Value="{StaticResource GaugeArcSecondaryBrush}"
+                                    ColorText1Value="{StaticResource GaugeLegendBrush}"
+                                    ColorText2Value="{StaticResource GaugeArcSecondaryBrush}"
                                     Text1Value="R" 
                                     Text2Value="S" 
                                     VerticalAlignment="Bottom" 
@@ -223,7 +227,7 @@
                                 <RowDefinition Height="1*"/>
                                 <!--<RowDefinition Height="0.1*"/>-->
                             </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" Grid.Column="0"  Background="#FFE0EAEA">
+                            <Grid Grid.Row="0" Grid.Column="0" Background="{StaticResource StatBoxBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="3*"/>
                                     <RowDefinition Height="1.5*"/>
@@ -239,7 +243,7 @@
 
                             </Grid>
 
-                            <Grid Grid.Row="0" Grid.Column="2"  Background="#FFE0EAEA">
+                            <Grid Grid.Row="0" Grid.Column="2" Background="{StaticResource StatBoxBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="3*"/>
                                     <RowDefinition Height="1.5*"/>
@@ -254,7 +258,7 @@
                                 </Grid>
 
                             </Grid>
-                            <Grid Grid.Row="2" Grid.Column="0"  Background="#FFE0EAEA">
+                            <Grid Grid.Row="2" Grid.Column="0" Background="{StaticResource StatBoxBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="3*"/>
                                     <RowDefinition Height="1.5*"/>
@@ -269,7 +273,7 @@
                                 </Grid>
 
                             </Grid>
-                            <Grid Grid.Row="2" Grid.Column="2"  Background="#FFE0EAEA">
+                            <Grid Grid.Row="2" Grid.Column="2" Background="{StaticResource StatBoxBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="3*"/>
                                     <RowDefinition Height="1.5*"/>
@@ -287,16 +291,16 @@
 
                         </Grid>
                         <Grid Grid.Column="5">
-                            <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Left"/>
+                            <Rectangle Width="1" Fill="{StaticResource BorderLightBrush}" HorizontalAlignment="Left"/>
                             <v:ArcGauge x:Name="Buffer_FullState"
                                     AngleValue="{Binding AngleDisconnect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     FullValue="{Binding Full_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ColorArc1Value="#90a4ae"
-                                    ColorArc2Value="#8d6e63"
-                                    ColorText1Value="DarkBlue"
-                                    ColorText2Value="#90a4ae"
+                                    ColorArc1Value="{StaticResource GaugeArcPrimaryBrush}"
+                                    ColorArc2Value="{StaticResource GaugeArcSecondaryBrush}"
+                                    ColorText1Value="{StaticResource GaugeLegendBrush}"
+                                    ColorText2Value="{StaticResource GaugeArcSecondaryBrush}"
                                     Text1Value="F" 
                                     Text2Value="E" 
                                     VerticalAlignment="Bottom" 
@@ -310,10 +314,10 @@
                                     TotalValue="{Binding TotalAGV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     FullValue="{Binding Full_value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     EmptyValue="{Binding Empty_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ColorArc1Value="#90a4ae"
-                                    ColorArc2Value="#8d6e63"
-                                    ColorText1Value="DarkBlue"
-                                    ColorText2Value="#90a4ae"
+                                    ColorArc1Value="{StaticResource GaugeArcPrimaryBrush}"
+                                    ColorArc2Value="{StaticResource GaugeArcSecondaryBrush}"
+                                    ColorText1Value="{StaticResource GaugeLegendBrush}"
+                                    ColorText2Value="{StaticResource GaugeArcSecondaryBrush}"
                                     Text1Value="F" 
                                     Text2Value="E" 
                                     VerticalAlignment="Bottom" 
@@ -358,7 +362,7 @@
                 </Grid>
             </Grid>
             <Grid Grid.Row="2">
-                <Grid x:Name="Grid_Map" Background="AliceBlue">
+                <Grid x:Name="Grid_Map" Background="{StaticResource ContentBackgroundBrush}">
                     <Rectangle Width="1" HorizontalAlignment="Left"/>
 
                     <StackPanel Name="map" Margin="0,0,0,0" >
@@ -378,7 +382,7 @@
                         <RowDefinition Height="18*"/>
                         <RowDefinition Height="0.5*"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Background="#FFFFFF">
+                    <Grid Grid.Row="0" Background="{StaticResource SurfaceBrush}">
                         <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
                                Height="35" Width="35" Margin="20,0,0,0"/>
                         <TextBlock Text="Chi tiết trạng thái Kho chứa" FontSize="20" FontWeight="DemiBold"
@@ -389,7 +393,7 @@
                     </Grid>
                 </Grid>
 
-                <Grid x:Name="Grid_CommandHistory" Background="#E8E8E8">
+                <Grid x:Name="Grid_CommandHistory" Background="{StaticResource ContentBackgroundBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1.5*"/>
                         <RowDefinition Height="18*"/>
@@ -399,7 +403,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid Grid.Column="0" Background="White">
+                        <Grid Grid.Column="0" Background="{StaticResource SurfaceBrush}">
                             <Image Source=".\Resources\Moitruong.jpg" HorizontalAlignment="Left" 
                                Height="35" Width="35" Margin="20,0,0,0"/>
                             <TextBlock Text="Chi tiết lịch sử thực hiện lệnh vận chuyển" FontSize="20" FontWeight="DemiBold"
@@ -429,15 +433,17 @@
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Column="1">
 
-                            <Button x:Name="btnAddCommand" Content="Tạo lệnh" Click="btnAddCommand_Click"  BorderBrush="#9C9C9C" 
-                                    Background="#1d1938" Width="120" Height="35" 
-                                    FontSize="14" Foreground="White" Grid.Column="1"></Button>
+                            <Button x:Name="btnAddCommand" Content="Tạo lệnh" Click="btnAddCommand_Click"
+                                    BorderBrush="{StaticResource ButtonPrimaryBorderBrush}"
+                                    Background="{StaticResource ButtonPrimaryBrush}" Width="120" Height="35"
+                                    FontSize="14" Foreground="{StaticResource SidebarForegroundBrush}" Grid.Column="1"/>
                         </Grid>
                         <Grid Grid.Column="2">
 
-                            <Button x:Name="btnDeleteCommand" Content="Xóa lệnh" Click="btnDeleteCommand_Click" BorderBrush="#9C9C9C" 
-                                    Background="#1d1938" Width="120" Height="35"
-                                    FontSize="14" Foreground="White" Grid.Column="1"></Button>
+                            <Button x:Name="btnDeleteCommand" Content="Xóa lệnh" Click="btnDeleteCommand_Click"
+                                    BorderBrush="{StaticResource ButtonPrimaryBorderBrush}"
+                                    Background="{StaticResource ButtonPrimaryBrush}" Width="120" Height="35"
+                                    FontSize="14" Foreground="{StaticResource SidebarForegroundBrush}" Grid.Column="1"/>
                         </Grid>
                     </Grid>
                 </Grid>

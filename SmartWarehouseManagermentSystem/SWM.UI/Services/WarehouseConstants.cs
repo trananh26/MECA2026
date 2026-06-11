@@ -1,13 +1,17 @@
+using SWM.UI.Config;
+
 namespace SWM.UI.Services
 {
+    /// <summary>Truy cập cấu hình kho từ appsettings.json (section Warehouse).</summary>
     internal static class WarehouseConstants
     {
-        public const string AgvId = "105";
-        public const string StkId = "B1STK01";
-        public const string InputPortName = "B1STK01_CV01_IP01";
-        public const string OutputPortName = "B1STK01_CV01_OP01";
-        public const string InputPortId = "215";
-        public const string OutputPortId = "115";
-        public const int PlcStationNumber = 25;
+        private static WarehouseSettings W => AppConfiguration.Current.Warehouse;
+
+        public static string AgvId => W.AgvId;
+        public static string StkId => W.StkId;
+        public static string InputPortName => W.InputPortName;
+        public static string OutputPortName => W.OutputPortName;
+        public static string InputPortId => W.InputPortId;
+        public static string OutputPortId => W.OutputPortId;
     }
 }

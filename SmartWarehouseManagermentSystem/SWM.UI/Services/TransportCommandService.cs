@@ -5,13 +5,24 @@ using System.Data;
 
 namespace SWM.UI.Services
 {
+    internal enum ImportCommandResult
+    {
+        Success,
+        InputPortEmpty,
+        NoEmptySlot,
+        Error
+    }
+
+    /// <summary>
+    /// Luồng lệnh vận chuyển: tạo lệnh (nhập/xuất/HMI/thủ công) → gán AGV → gửi PLC → cập nhật BF/DB.
+    /// </summary>
     internal sealed class TransportCommandService
     {
         private readonly PlcService _plc;
         private int _oldOutputRequest;
 
         public CurrentTransportCommand CurrentJob { get; } = new CurrentTransportCommand();
-        public string AgvLocation { get; set; } = "5";
+        public string AgvLocation { get; set; } = "2";
 
         public event Action CommandsChanged;
         public event Action LayoutChanged;
@@ -21,13 +32,17 @@ namespace SWM.UI.Services
             _plc = plc;
         }
 
-        public void CreateImportCommand()
+        // Serial C1x + IP01 FULL (M2300): lấy hàng từ băng tải nhập → ô BF trống đầu tiên
+        public ImportCommandResult CreateImportCommand()
         {
             try
             {
+                if (!_plc.IsInputPortFull())
+                    return ImportCommandResult.InputPortEmpty;
+
                 DataTable dtEmptyBf = BLLayout.LoadEmptyBF();
                 if (dtEmptyBf.Rows.Count == 0)
-                    return;
+                    return ImportCommandResult.NoEmptySlot;
 
                 InsertCommand(
                     WarehouseConstants.InputPortName,
@@ -38,12 +53,15 @@ namespace SWM.UI.Services
 
                 BLLayout.UpdateTrayID(WarehouseConstants.InputPortId, string.Empty);
                 NotifyCommandsChanged();
+                return ImportCommandResult.Success;
             }
             catch (Exception)
             {
+                return ImportCommandResult.Error;
             }
         }
 
+        // Xuất: ô BF đầy đầu tiên → OP01
         public void CreateExportCommand(DataTable fullSlots)
         {
             if (fullSlots.Rows.Count == 0)
@@ -59,6 +77,7 @@ namespace SWM.UI.Services
             NotifyCommandsChanged();
         }
 
+        // HMI ghi D2350: mỗi lần tăng giá trị tạo một lệnh xuất rồi reset D2350
         public void HandleHmiOutputRequest(int outputRequest)
         {
             if (outputRequest <= 0)
@@ -75,6 +94,7 @@ namespace SWM.UI.Services
             _oldOutputRequest = outputRequest;
         }
 
+        // Timer 2s: lấy lệnh JOB CREATE đầu hàng, gán AGV khi ở node 0/1, hoặc đẩy lệnh đang chạy lên PLC
         public void ProcessPendingCommands()
         {
             try
@@ -90,6 +110,7 @@ namespace SWM.UI.Services
 
                 LoadCurrentJobFromRow(dtCommand.Rows[0]);
 
+                // AGV ở node sạc/đợi mới nhận lệnh mới
                 if (jobStatus == "JOB CREATE" && (AgvLocation == "0" || AgvLocation == "1"))
                 {
                     DataTable dtLayout = BLLayout.LoadLayoutConfig();
@@ -128,6 +149,7 @@ namespace SWM.UI.Services
             }
         }
 
+        // Đọc vị trí AGV (D800): tới nguồn → chuyển TRANSFERING; tới đích hoặc M3000=1 → JOB COMPLETE
         public void UpdateCommandProgress()
         {
             try

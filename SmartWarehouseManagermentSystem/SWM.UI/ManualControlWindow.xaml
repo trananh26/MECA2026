@@ -34,7 +34,7 @@
                        VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
             </Grid>
         </Grid>
-        <Grid Grid.Row="1" Background="#EEEE">
+        <Grid Grid.Row="1" Background="{StaticResource ContentBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="2.5*"/>
@@ -45,12 +45,12 @@
             <Grid Grid.Column="1">
                 <TextBox Height="30" Width="250" HorizontalAlignment="Left" x:Name="txb_Source"/>
                 <Button Width="60" x:Name="btt_Source" Click="btt_Source_Click"
-                        Background="#E0E0E0" BorderBrush="#E0E0E0" Margin="250,0,0,0">
+                        Background="{StaticResource StatBoxBackgroundBrush}" BorderBrush="{StaticResource BorderLightBrush}" Margin="250,0,0,0">
                     <materialDesign:PackIcon Kind="LayersPlus" Margin="-3,-2,0,0" Foreground="Black" Height="26" Width="34"/>
                 </Button>
             </Grid>
         </Grid>
-        <Grid Grid.Row="2" Background="#EEEE">
+        <Grid Grid.Row="2" Background="{StaticResource ContentBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="2.5*"/>
@@ -61,12 +61,12 @@
             <Grid Grid.Column="1">
                 <TextBox Height="30" Width="250" HorizontalAlignment="Left" x:Name="txb_Dest"/>
                 <Button Width="60" x:Name="btt_Dest" Click="btt_Dest_Click" 
-                        Background="#E0E0E0" BorderBrush="#E0E0E0" Margin="250,0,0,0">
+                        Background="{StaticResource StatBoxBackgroundBrush}" BorderBrush="{StaticResource BorderLightBrush}" Margin="250,0,0,0">
                     <materialDesign:PackIcon Kind="LayersPlus" Margin="-3,-2,0,0" Foreground="Black" Height="26" Width="34"/>
                 </Button>
             </Grid>
         </Grid>
-        <Grid Grid.Row="3" Background="#EEEE">
+        <Grid Grid.Row="3" Background="{StaticResource ContentBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1.2*"/>
                 <RowDefinition Height="1*"/>
@@ -81,12 +81,14 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="2">
                     <Button Style="{StaticResource MaterialDesignRaisedButton}" Height="30" Width="90"
-                    x:Name="btt_ok" Click="btt_ok_Click"  Background="#E0E0e0" Foreground="Black">OK
+                    x:Name="btt_ok" Click="btt_ok_Click"
+                    Background="{StaticResource ButtonPrimaryBrush}" Foreground="{StaticResource SidebarForegroundBrush}">OK
                     </Button>
                 </Grid>
                 <Grid Grid.Column="3">
                     <Button Style="{StaticResource MaterialDesignRaisedButton}" Height="30" Width="90"
-                    x:Name="btt_canel" Click="btt_canel_Click"  Background="#E0E0e0" Foreground="Black">CANCEL
+                    x:Name="btt_canel" Click="btt_canel_Click"
+                    Background="{StaticResource StatBoxBackgroundBrush}" Foreground="{StaticResource GaugeLabelBrush}">CANCEL
                     </Button>
                 </Grid>
             </Grid>

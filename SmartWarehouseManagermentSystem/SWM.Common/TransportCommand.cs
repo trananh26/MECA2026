@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,8 @@ namespace SWM.Common
 		public DateTime JobStart { get; set; }
 		public DateTime JobAssign { get; set; }
 		public DateTime JobComplete { get; set; }
-	}
+
+    }
 
 	public class CurrentTransportCommand
 	{

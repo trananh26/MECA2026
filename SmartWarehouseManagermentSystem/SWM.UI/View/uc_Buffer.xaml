@@ -18,24 +18,24 @@
                         Text="{Binding Port_Name,Mode=OneWay,
                         RelativeSource={RelativeSource AncestorType=UserControl}}" 
                         Foreground="{Binding colorText,RelativeSource={RelativeSource AncestorType=UserControl},UpdateSourceTrigger=PropertyChanged}"/>
-            <Rectangle StrokeThickness="1" Height="1" VerticalAlignment="Bottom" Stroke="Black"/>
+            <Rectangle StrokeThickness="1" Height="1" VerticalAlignment="Bottom" Stroke="{StaticResource BorderMediumBrush}"/>
         </Grid>
 
         <Grid Grid.Row="1">
-            <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#E0E0E0" FontSize="14"
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource BufferDetailTextBrush}" FontSize="14"
                             Text="{Binding Material_Code,Mode=OneWay,
                         RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         </Grid>
 
         <Grid Grid.Row="2">
 
-            <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="#E0E0E0"
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="{StaticResource BufferDetailTextBrush}"
                             Text="{Binding Material_ID,Mode=OneWay,
                         RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         </Grid>
 
         <Grid Grid.Row="3">
-            <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="#E0E0E0"
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="{StaticResource BufferDetailTextBrush}"
                             Text="{Binding Aging_Time,Mode=OneWay,
                         RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         </Grid>

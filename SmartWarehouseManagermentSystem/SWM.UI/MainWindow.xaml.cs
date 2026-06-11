@@ -1,6 +1,8 @@
 ﻿using SWM.BL;
 using SWM.Common;
+using SWM.UI.Config;
 using SWM.UI.Services;
+using SWM.UI.Themes;
 using SWM.UI.View;
 using System;
 using System.Collections.Generic;
@@ -16,14 +18,20 @@ using System.Windows.Threading;
 
 namespace SWM.UI
 {
+    /// <summary>
+    /// Màn hình chính: map kho + AGV, điều phối qua các service (PLC, serial, lệnh vận chuyển).
+    /// Luồng: Serial/HMI/Manual → TransportCommand → PLC → Monitor cập nhật UI.
+    /// </summary>
     public partial class MainWindow : Window
     {
+        // --- Services ---
         private readonly PlcService _plcService;
         private readonly TransportCommandService _transportService;
         private readonly SerialCommunicationService _serialService;
         private readonly PlcMonitorService _plcMonitor;
         private readonly DispatcherTimer _conveyorTimer;
 
+        // --- Map / layout UI ---
         private readonly List<BFLayout> _buffers = new List<BFLayout>();
         private readonly List<Node> _nodes = new List<Node>();
         private readonly List<Link> _links = new List<Link>();
@@ -43,7 +51,7 @@ namespace SWM.UI
         {
             InitializeComponent();
 
-            _plcService = new PlcService("192.168.3.250");
+            _plcService = new PlcService(AppConfiguration.Current.Plc.IpAddress);
             _transportService = new TransportCommandService(_plcService);
             _serialService = new SerialCommunicationService();
             _plcMonitor = new PlcMonitorService(_plcService, _transportService);
@@ -53,26 +61,26 @@ namespace SWM.UI
             WireServiceEvents();
 
             if (_plcService.Connect())
-                _plcMonitor.InitializeAgvState("5", "EMPTY");
+                _plcMonitor.InitializeAgvState("2", "EMPTY");
 
             _serialService.Connect();
 
             Load_Layout();
             Load_Map();
             LoadInitialAgv();
-            Update_AGV("5");
+            Update_AGV("2");
 
             StartTimers();
         }
 
+        // Nối event service → cập nhật UI trên UI thread
         private void WireServiceEvents()
         {
             _transportService.CommandsChanged += () => Dispatcher.Invoke(LoadTransportCommand);
             _transportService.LayoutChanged += () => Dispatcher.Invoke(Load_Layout);
-
-            _serialService.ConveyorInRequested += () => Dispatcher.Invoke(() => _plcService.StartConveyorIn());
-            _serialService.ConveyorOutRequested += () => Dispatcher.Invoke(StartConveyorOut);
-            _serialService.ImportRequested += () => Dispatcher.Invoke(() => _transportService.CreateImportCommand());
+                      
+            // C1x + băng tải IP01 có hàng → tạo lệnh nhập kho
+            _serialService.ImportRequested += () => Dispatcher.Invoke(OnSerialImportRequested);
             _serialService.ErrorOccurred += message => Dispatcher.Invoke(() =>
                 MessageBox.Show(message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error));
 
@@ -80,6 +88,7 @@ namespace SWM.UI
             _plcMonitor.LayoutRefreshRequested += () => Dispatcher.Invoke(Load_Layout);
         }
 
+        // Timer: xử lý hàng đợi lệnh | nhịp sống PLC | poll trạng thái | ping mạng
         private void StartTimers()
         {
             var commandTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
@@ -99,16 +108,33 @@ namespace SWM.UI
             pingTimer.Start();
         }
 
-        private void StartConveyorOut()
+        // C1x từ serial: chỉ tạo lệnh khi IP01 (M2300) đang có hàng và còn ô BF trống
+        private void OnSerialImportRequested()
         {
-            _plcService.StartConveyorOut();
-            _conveyorTimer.Start();
+            switch (_transportService.CreateImportCommand())
+            {
+                case ImportCommandResult.Success:
+                    LoadTransportCommand();
+                    break;
+                case ImportCommandResult.InputPortEmpty:
+                    MessageBox.Show("Không tạo lệnh nhập: băng tải IP01 chưa có hàng.", "Thông báo",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    break;
+                case ImportCommandResult.NoEmptySlot:
+                    MessageBox.Show("Không tạo lệnh nhập: kho đã đầy, không còn ô trống.", "Thông báo",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    break;
+                default:
+                    MessageBox.Show("Không tạo được lệnh nhập. Vui lòng thử lại.", "Thông báo",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    break;
+            }
         }
 
         private void ConveyorTimer_Tick(object sender, EventArgs e)
         {
-            _plcService.StopConveyor();
-            _conveyorTimer.Stop();
+            //_plcService.StopConveyor();
+            //_conveyorTimer.Stop();
         }
 
         private void LoadInitialAgv()
@@ -163,7 +189,7 @@ namespace SWM.UI
                     {
                         Height = 40,
                         Width = 30,
-                        color_Baterry = Brushes.Orange,
+                        color_Baterry = ThemeColors.BatteryDefault,
                         AGV_Name = agvId.ToString()
                     };
 
@@ -240,12 +266,7 @@ namespace SWM.UI
                     if (!int.TryParse(agv.ID, out int agvId))
                         continue;
 
-                    if (agv.BATTERY >= 25)
-                        _agvControls[agvId].color_Baterry = Brushes.LimeGreen;
-                    else if (agv.BATTERY >= 24)
-                        _agvControls[agvId].color_Baterry = Brushes.Orange;
-                    else
-                        _agvControls[agvId].color_Baterry = Brushes.Tomato;
+                    _agvControls[agvId].color_Baterry = ThemeColors.BatteryGood;
 
                     ApplyAgvVisualState(_agvControls[agvId], agv);
 
@@ -267,7 +288,7 @@ namespace SWM.UI
 
                     TranslateTransform transform = new TranslateTransform();
                     _agvControls[agvId].RenderTransform = transform;
-                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 168, TimeSpan.FromSeconds(2)));
+                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 565, TimeSpan.FromSeconds(2)));
                     transform.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(3, 3, TimeSpan.FromSeconds(2)));
                     _agvX = agv.X - 168;
 
@@ -302,22 +323,15 @@ namespace SWM.UI
         {
             if (agv.ALARM == "NOALARM")
             {
-                if (agv.STATUS == "RUN")
-                    control.colorbackgroud = Brushes.Lime;
-                else if (agv.STATUS == "PARK")
-                    control.colorbackgroud = Brushes.Yellow;
-                else if (agv.STATUS == "CHARGE")
-                    control.colorbackgroud = Brushes.PaleGoldenrod;
-                else if (agv.STATUS == "IDLE")
-                    control.colorbackgroud = Brushes.PaleVioletRed;
+                control.colorbackgroud = ThemeColors.AgvRun;
             }
             else
             {
-                control.colorbackgroud = Brushes.Red;
+                control.colorbackgroud = ThemeColors.AgvAlarm;
             }
 
             if (agv.STATE == "FULL")
-                control.colorTray = Brushes.Black;
+                control.colorTray = ThemeColors.AgvTrayFull;
             else if (agv.STATE == "EMPTY")
             {
                 control.colorTray = control.colorbackgroud;
@@ -378,7 +392,7 @@ namespace SWM.UI
                     Line line = new Line
                     {
                         StrokeThickness = 2,
-                        Stroke = Brushes.Gray,
+                        Stroke = ThemeColors.MapLink,
                         ToolTip = link.ID,
                         X1 = link.StartX,
                         Y1 = link.StartY,
@@ -409,7 +423,7 @@ namespace SWM.UI
                     {
                         Height = 6,
                         Width = 6,
-                        colorbackgroud = Brushes.DimGray,
+                        colorbackgroud = ThemeColors.MapNode,
                         ToolTip = string.Format("Node: {0}", node.ID),
                         Visibility = Visibility.Visible
                     };
@@ -499,13 +513,13 @@ namespace SWM.UI
                         _bufferControls[bufferId].Material_ID = buffer.PRODUCTID;
                         _bufferControls[bufferId].Material_Code = buffer.TRAYID;
                         _bufferControls[bufferId].Aging_Time = buffer.AGINGTIME;
-                        _bufferControls[bufferId].Background = Brushes.Green;
-                        _bufferControls[bufferId].rtgSlottray.Foreground = Brushes.White;
+                        _bufferControls[bufferId].Background = ThemeColors.BufferFull;
+                        _bufferControls[bufferId].rtgSlottray.Foreground = ThemeColors.BufferFullText;
                     }
                     else
                     {
-                        _bufferControls[bufferId].Background = Brushes.PaleGreen;
-                        _bufferControls[bufferId].rtgSlottray.Foreground = Brushes.Black;
+                        _bufferControls[bufferId].Background = ThemeColors.BufferEmpty;
+                        _bufferControls[bufferId].rtgSlottray.Foreground = ThemeColors.BufferEmptyText;
                     }
 
                     _bufferControls[bufferId].Port_Name = buffer.PORTNAME;
