@@ -82,5 +82,29 @@ namespace SWM.UI.View
         // Using a DependencyProperty as the backing store for column_Name.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty _FullState =
             DependencyProperty.Register("_FullState", typeof(string), typeof(uc_Buffer), new PropertyMetadata(string.Empty));
+
+        public bool HidePortHeader
+        {
+            get { return (bool)GetValue(HidePortHeaderProperty); }
+            set { SetValue(HidePortHeaderProperty, value); }
+        }
+
+        public static readonly DependencyProperty HidePortHeaderProperty =
+            DependencyProperty.Register(nameof(HidePortHeader), typeof(bool), typeof(uc_Buffer),
+                new PropertyMetadata(false, OnHidePortHeaderChanged));
+
+        private static void OnHidePortHeaderChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (uc_Buffer)d;
+            bool hide = (bool)e.NewValue;
+            control.headerPanel.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            control.detailRow1.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            control.detailRow2.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            control.detailRow3.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            control.rootGrid.RowDefinitions[0].Height = hide ? new GridLength(0) : new GridLength(1.2, GridUnitType.Star);
+            control.rootGrid.RowDefinitions[1].Height = hide ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+            control.rootGrid.RowDefinitions[2].Height = hide ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+            control.rootGrid.RowDefinitions[3].Height = hide ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+        }
     }
 }

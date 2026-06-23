@@ -368,7 +368,7 @@
                 <Grid x:Name="Grid_Map" Background="{StaticResource ContentBackgroundBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="380"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Sơ đồ kho -->
@@ -445,8 +445,10 @@
                                             </StackPanel>
                                         </Grid>
                                         <TextBlock x:Name="lblSerialConfig" FontSize="10" Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,4,0,0"/>
-                                        <TextBlock Text="Trigger: C1x → nhập IP01" FontSize="10"
+                                        <TextBlock Text="C1x nhập kho | CMx quay CV02 | C2x quay ngược CV03_IP02" FontSize="10"
                                                    Foreground="{StaticResource PanelMutedTextBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock x:Name="lblConveyorStatus" FontSize="10" TextWrapping="Wrap"
+                                                   Foreground="{StaticResource GaugeLabelBrush}" Margin="0,6,0,0"/>
                                     </StackPanel>
                                 </Border>
 

@@ -28,6 +28,7 @@ namespace SWM.UI
         private readonly PlcService _plcService;
         private readonly TransportCommandService _transportService;
         private readonly SerialCommunicationService _serialService;
+        private readonly ConveyorCommandService _conveyorCommandService;
         private readonly PlcMonitorService _plcMonitor;
         private readonly ConnectionStatusService _connectionStatus = new ConnectionStatusService();
         private readonly DispatcherTimer _conveyorTimer;
@@ -55,7 +56,8 @@ namespace SWM.UI
             _plcService = new PlcService(AppConfiguration.Current.Plc.IpAddress);
             _transportService = new TransportCommandService(_plcService);
             _serialService = new SerialCommunicationService();
-            _plcMonitor = new PlcMonitorService(_plcService, _transportService);
+            _conveyorCommandService = new ConveyorCommandService(_serialService, _plcService);
+            _plcMonitor = new PlcMonitorService(_plcService, _transportService, _conveyorCommandService);
             _conveyorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _conveyorTimer.Tick += ConveyorTimer_Tick;
 
@@ -80,8 +82,9 @@ namespace SWM.UI
         {
             _transportService.CommandsChanged += () => Dispatcher.Invoke(LoadTransportCommand);
             _transportService.LayoutChanged += () => Dispatcher.Invoke(Load_Layout);
-                      
-            // C1x + băng tải IP01 có hàng → tạo lệnh nhập kho
+
+            _conveyorCommandService.StatusChanged += status => Dispatcher.Invoke(() => lblConveyorStatus.Text = status);
+
             _serialService.ImportRequested += () => Dispatcher.Invoke(OnSerialImportRequested);
             _serialService.ErrorOccurred += message => Dispatcher.Invoke(() =>
                 MessageBox.Show(message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error));
@@ -149,7 +152,7 @@ namespace SWM.UI
             label.Foreground = brush;
         }
 
-        // C1x từ serial: chỉ tạo lệnh khi IP01 (M2300) đang có hàng và còn ô BF trống
+        // C1x từ serial: lấy hàng IP01 → ô BF trống (khi M2300=1)
         private void OnSerialImportRequested()
         {
             switch (_transportService.CreateImportCommand())
@@ -329,7 +332,7 @@ namespace SWM.UI
 
                     TranslateTransform transform = new TranslateTransform();
                     _agvControls[agvId].RenderTransform = transform;
-                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 515, TimeSpan.FromSeconds(2)));
+                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 715, TimeSpan.FromSeconds(2)));
                     transform.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(3, 3, TimeSpan.FromSeconds(2)));
                     _agvX = agv.X - 168;
 
@@ -571,6 +574,18 @@ namespace SWM.UI
                     {
                         _bufferControls[bufferId].Height = 145;
                         _bufferControls[bufferId].Width = 240;
+                    }
+                    else if (_bufferControls[bufferId].Port_Name.Substring(0, 12) == "B1STK01_CV02")
+                    {
+                        _bufferControls[bufferId].Height = 420;
+                        _bufferControls[bufferId].Width = 160;
+                        _bufferControls[bufferId].HidePortHeader = true;
+                    }
+                    else if (_bufferControls[bufferId].Port_Name.Substring(0, 12) == "B1STK01_CV03")
+                    {
+                        _bufferControls[bufferId].Height = 250;
+                        _bufferControls[bufferId].Width = 160;
+                        _bufferControls[bufferId].HidePortHeader = true;
                     }
                     else
                     {

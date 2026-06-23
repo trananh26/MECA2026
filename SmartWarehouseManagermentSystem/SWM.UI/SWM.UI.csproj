@@ -126,6 +126,7 @@
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\ConveyorCommandService.cs" />
     <Compile Include="Services\ConnectionStatusService.cs" />
     <Compile Include="Services\PlcMonitorService.cs" />
     <Compile Include="Services\PlcService.cs" />

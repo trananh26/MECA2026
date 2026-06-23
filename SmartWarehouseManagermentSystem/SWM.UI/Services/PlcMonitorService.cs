@@ -10,6 +10,7 @@ namespace SWM.UI.Services
     {
         private readonly PlcService _plc;
         private readonly TransportCommandService _transport;
+        private readonly ConveyorCommandService _conveyor;
 
         private string _oldFullState = "EMPTY";
         private string _oldLocation = "2";
@@ -20,10 +21,11 @@ namespace SWM.UI.Services
         public event Action<string> AgvLocationChanged;
         public event Action LayoutRefreshRequested;
 
-        public PlcMonitorService(PlcService plc, TransportCommandService transport)
+        public PlcMonitorService(PlcService plc, TransportCommandService transport, ConveyorCommandService conveyor)
         {
             _plc = plc;
             _transport = transport;
+            _conveyor = conveyor;
         }
 
         public void InitializeAgvState(string location, string fullState)
@@ -40,15 +42,13 @@ namespace SWM.UI.Services
                 // Theo dõi tiến độ lệnh đang chạy (JOB START → TRANSFERING → COMPLETE)
                 _transport.UpdateCommandProgress();
 
-                // AGV: vị trí D800, có hàng M510
+                // AGV: vị trí D800 (chuẩn hóa), có hàng M510
                 string agvFullState = _plc.GetDeviceInt("M510") == 1 ? "FULL" : "EMPTY";
-                string agvLocation = _plc.GetDeviceInt("D800").ToString();
-                agvLocation = "3";
+                string agvLocation = _plc.GetAgvLocation().ToString();
                 _transport.AgvLocation = agvLocation;
 
                 if (agvLocation != _oldLocation || agvFullState != _oldFullState)
                 {
-                    
                     BLUpdateAGVStatus.UpdateAGVStatus(_plc.AgvId, agvLocation, agvFullState);
                     AgvLocationChanged?.Invoke(agvLocation);
                     _oldFullState = agvFullState;
@@ -82,6 +82,9 @@ namespace SWM.UI.Services
 
                 // HMI bấm xuất: M33 > 0 → tạo lệnh xuất slot FULL đầu tiên
                 _transport.HandleHmiOutputRequest(_plc.GetDeviceInt("M33"));
+
+                // CMx đã set M701 → gửi COx khi CV02_IO01 có hàng (M2302)
+                _conveyor.PollPendingAck();
             }
             catch (Exception)
             {

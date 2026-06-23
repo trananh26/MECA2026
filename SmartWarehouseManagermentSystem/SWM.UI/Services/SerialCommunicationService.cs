@@ -6,7 +6,7 @@ using System.Windows;
 namespace SWM.UI.Services
 {
     /// <summary>
-    /// Cổng COM: tin kết thúc bằng 'x' — "1"/"2" băng tải, "C1x" yêu cầu lấy hàng IP01 (khi băng tải đã có hàng).
+    /// Cổng COM, tin kết thúc 'x': C1x=nhập kho; CMx=quay băng tải; C2x=quay ngược CV03_IP02.
     /// </summary>
     internal sealed class SerialCommunicationService : IDisposable
     {
@@ -17,6 +17,8 @@ namespace SWM.UI.Services
         public int BaudRate => _port.BaudRate;
 
         public event Action ImportRequested;
+        public event Action ConveyorCommandReceived;
+        public event Action Cv03ReverseCommandReceived;
         public event Action<string> ErrorOccurred;
 
         public void Connect()
@@ -36,6 +38,23 @@ namespace SWM.UI.Services
             }
         }
 
+        public bool SendMessage(string body)
+        {
+            try
+            {
+                if (!_port.IsOpen)
+                    return false;
+
+                _port.Write(body + "x");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorOccurred?.Invoke(ex.ToString());
+                return false;
+            }
+        }
+
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
@@ -46,7 +65,6 @@ namespace SWM.UI.Services
                     return;
                 }
 
-                // Ví dụ "C1x" → ReadTo("x") trả về "C1"
                 string data = _port.ReadTo("x").Trim();
                 ProcessMessage(data);
             }
@@ -58,13 +76,20 @@ namespace SWM.UI.Services
 
         private void ProcessMessage(string data)
         {
-            if (IsImportRequest(data))
-                ImportRequested?.Invoke();          // C1x → kiểm tra IP01 FULL rồi tạo lệnh nhập kho
-        }
+            if (string.Equals(data, "C1", StringComparison.OrdinalIgnoreCase))
+            {
+                ImportRequested?.Invoke();
+                return;
+            }
 
-        private static bool IsImportRequest(string data)
-        {
-            return string.Equals(data, "C1", StringComparison.OrdinalIgnoreCase);
+            if (string.Equals(data, "CM", StringComparison.OrdinalIgnoreCase))
+            {
+                ConveyorCommandReceived?.Invoke();
+                return;
+            }
+
+            if (string.Equals(data, "C2", StringComparison.OrdinalIgnoreCase))
+                Cv03ReverseCommandReceived?.Invoke();
         }
 
         public void Dispose()

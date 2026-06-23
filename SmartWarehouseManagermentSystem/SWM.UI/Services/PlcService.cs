@@ -81,11 +81,27 @@ namespace SWM.UI.Services
         // IP01 có hàng trên băng tải (PLC M2300 = 1)
         public bool IsInputPortFull() => GetDeviceInt("M2300") == 1;
 
+        // CV02_IO01 có hàng (PLC M2302 = 1) — điều kiện gửi COx
+        public bool IsCv02Io01Full() => GetDeviceInt("M2302") == 1;
+
+        // CMx: quay băng tải nhập (CV02)
+        public void StartConveyorRotation() => SetDevice("M701", 1);
+
+        // C2x: quay ngược băng tải CV03_IP02
+        public void StartCv03Ip02ReverseRotation() => SetDevice("M703", 1);
+
         public int GetDeviceInt(string address)
         {
             int value;
             _plc.GetDevice(address, out value);
             return value;
+        }
+
+        // D800: nếu > 4 thì trừ 4 để map về node trên sơ đồ kho
+        public int GetAgvLocation()
+        {
+            int raw = GetDeviceInt("D800");
+            return raw > 4 ? raw - 4 : raw;
         }
 
         public void SetDevice(string address, int value) => _plc.SetDevice(address, value);
@@ -95,13 +111,11 @@ namespace SWM.UI.Services
         {
             if (!TryGetBufferSlotId(job, out int bufferSlotId, out int commandType))
                 return false;
-
-            SetDevice("M38", 0);
+                        
             SetDevice("D502", commandType);
             SetDevice("D500", bufferSlotId);
-            //SetDevice("D2100", int.Parse(job.CommandSourceID));
-            //SetDevice("D2150", int.Parse(job.CommandDestID));
-            SetDevice("M38", 1);
+            SetDevice("M39", 1);
+            SetDevice("M39", 0);
             return true;
         }
 

@@ -135,7 +135,6 @@ namespace SWM.UI.Services
                 }
                 else if (jobStatus != "JOB CREATE")
                 {
-                    _plc.SetDevice("M38", 0);
                     CurrentJob.CommandID = currentCommandId;
                     CurrentJob.CommandStatus = jobStatus;
                     CurrentJob.JobCreat = DateTime.Parse(dtCommand.Rows[0]["JobCreat"].ToString());
@@ -164,7 +163,7 @@ namespace SWM.UI.Services
                     return;
 
                 int completeState = _plc.GetDeviceInt("M3000");
-                int location = _plc.GetDeviceInt("D800");
+                int location = _plc.GetAgvLocation();
                 int portSource = CurrentJob.CommandSourceID == WarehouseConstants.InputPortId
                     ? 1
                     : 1 + int.Parse(CurrentJob.CommandSourceID.Substring(2, 1));
@@ -174,7 +173,6 @@ namespace SWM.UI.Services
 
                 if (location == portSource && CurrentJob.CommandStatus == "JOB START")
                 {
-                    _plc.SetDevice("M38", 1);
                     CurrentJob.CommandStatus = "TRANSFERING DEST";
                     BLTransportCommand.UpdateCommandStatus(CurrentJob);
                     BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");

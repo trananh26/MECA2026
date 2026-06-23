@@ -12,7 +12,7 @@ namespace SWM.BL
         public static void LogAlarmToDatabase(string AlarmCode)
         {
             string stored = "Proc_InsertAlarmHistory";
-            DLReport.LogAlarm(stored, AlarmCode);
+            //DLReport.LogAlarm(stored, AlarmCode);
         }
     }
 }
