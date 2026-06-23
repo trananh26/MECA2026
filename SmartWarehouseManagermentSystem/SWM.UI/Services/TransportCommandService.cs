@@ -32,7 +32,7 @@ namespace SWM.UI.Services
             _plc = plc;
         }
 
-        // Serial C1x + IP01 FULL (M2300): lấy hàng từ băng tải nhập → ô BF trống đầu tiên
+        // Serial C1x + IP01 FULL (M706): lấy hàng từ băng tải nhập → ô BF trống đầu tiên
         public ImportCommandResult CreateImportCommand()
         {
             try

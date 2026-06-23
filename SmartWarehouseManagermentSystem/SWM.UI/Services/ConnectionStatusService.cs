@@ -68,8 +68,8 @@ namespace SWM.UI.Services
                 try
                 {
                     info.AgvLoadState = plc.GetDeviceInt("M510") == 1 ? "FULL" : "EMPTY";
-                    info.InputPortState = plc.GetDeviceInt("M2300") == 1 ? "FULL" : "EMPTY";
-                    info.OutputPortState = plc.GetDeviceInt("M2301") == 1 ? "FULL" : "EMPTY";
+                    info.InputPortState = plc.GetDeviceInt("M706") == 1 ? "FULL" : "EMPTY";
+                    info.OutputPortState = plc.GetDeviceInt("M707") == 1 ? "FULL" : "EMPTY";
                 }
                 catch (Exception)
                 {

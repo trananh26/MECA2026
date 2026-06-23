@@ -63,8 +63,8 @@ namespace SWM.UI.Services
                     _oldAlarm = alarm;
                 }
 
-                // Cổng nhập IP01 (M2300) / xuất OP01 (M2301) → cập nhật layout
-                string inputState = _plc.GetDeviceInt("M2300") == 1 ? "FULL" : "EMPTY";
+                // Cổng nhập IP01 (M706) / xuất OP01 (M707) → cập nhật layout
+                string inputState = _plc.GetDeviceInt("M706") == 1 ? "FULL" : "EMPTY";
                 if (inputState != _oldInputState)
                 {
                     BLLayout.UpdateInOutState(int.Parse(WarehouseConstants.InputPortId), inputState);
@@ -72,7 +72,7 @@ namespace SWM.UI.Services
                     _oldInputState = inputState;
                 }
 
-                string outputState = _plc.GetDeviceInt("M2301") == 1 ? "FULL" : "EMPTY";
+                string outputState = _plc.GetDeviceInt("M707") == 1 ? "FULL" : "EMPTY";
                 if (outputState != _oldOutputState)
                 {
                     BLLayout.UpdateInOutState(int.Parse(WarehouseConstants.OutputPortId), outputState);
@@ -83,7 +83,7 @@ namespace SWM.UI.Services
                 // HMI bấm xuất: M33 > 0 → tạo lệnh xuất slot FULL đầu tiên
                 _transport.HandleHmiOutputRequest(_plc.GetDeviceInt("M33"));
 
-                // CMx đã set M701 → gửi COx khi CV02_IO01 có hàng (M2302)
+                // CMx đã set M701 → gửi COx khi M709 ON (M708 báo có hàng)
                 _conveyor.PollPendingAck();
             }
             catch (Exception)

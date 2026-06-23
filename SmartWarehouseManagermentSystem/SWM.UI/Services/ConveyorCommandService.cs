@@ -4,13 +4,15 @@ using System.Threading;
 namespace SWM.UI.Services
 {
     /// <summary>
-    /// Nhận CMx → M701=1, COx khi M2302=1. Nhận C2x → M703=1 (quay ngược CV03_IP02).
+    /// Nhận CMx → M701=1, gửi COx khi M709=1 (M708 báo có hàng tại CV02_IO01).
+    /// Nhận C2x → M703=1 (quay ngược CV03_IP02).
     /// </summary>
     internal sealed class ConveyorCommandService
     {
         private readonly SerialCommunicationService _serial;
         private readonly PlcService _plc;
-        private int _waitingForCv02Full;
+        private int _waitingForCoAck;
+        private int _m708StatusReported;
 
         public event Action<string> StatusChanged;
 
@@ -24,10 +26,16 @@ namespace SWM.UI.Services
 
         public void PollPendingAck()
         {
-            if (Interlocked.CompareExchange(ref _waitingForCv02Full, 0, 0) != 1)
+            if (Interlocked.CompareExchange(ref _waitingForCoAck, 0, 0) != 1)
                 return;
 
-            if (!_plc.IsCv02Io01Full())
+            if (_plc.IsCv02Io01Full() && Interlocked.CompareExchange(ref _m708StatusReported, 0, 0) == 0)
+            {
+                Interlocked.Exchange(ref _m708StatusReported, 1);
+                SetStatus("M708=1 (CV02_IO01 có hàng), chờ M709 ON để gửi COx...");
+            }
+
+            if (!_plc.IsCoAckReady())
                 return;
 
             SendCoAck();
@@ -35,9 +43,9 @@ namespace SWM.UI.Services
 
         private void OnConveyorCommandReceived()
         {
-            if (Interlocked.CompareExchange(ref _waitingForCv02Full, 0, 0) == 1)
+            if (Interlocked.CompareExchange(ref _waitingForCoAck, 0, 0) == 1)
             {
-                SetStatus("Đang chờ CV02_IO01 có hàng — bỏ qua CM mới.");
+                SetStatus("Đang chờ M709 — bỏ qua CM mới.");
                 return;
             }
 
@@ -49,14 +57,15 @@ namespace SWM.UI.Services
 
             _plc.StartConveyorRotation();
 
-            if (_plc.IsCv02Io01Full())
+            if (_plc.IsCoAckReady())
             {
                 SendCoAck();
                 return;
             }
 
-            Interlocked.Exchange(ref _waitingForCv02Full, 1);
-            SetStatus("Nhận CM → M701=1, chờ CV02_IO01 có hàng (M2302)...");
+            Interlocked.Exchange(ref _m708StatusReported, 0);
+            Interlocked.Exchange(ref _waitingForCoAck, 1);
+            SetStatus("Nhận CM → M701=1, chờ M709 ON để gửi COx...");
         }
 
         private void OnCv03ReverseCommandReceived()
@@ -73,15 +82,16 @@ namespace SWM.UI.Services
 
         private void SendCoAck()
         {
-            Interlocked.Exchange(ref _waitingForCv02Full, 0);
+            Interlocked.Exchange(ref _waitingForCoAck, 0);
+            Interlocked.Exchange(ref _m708StatusReported, 0);
 
             if (!_serial.SendMessage("CO"))
             {
-                SetStatus("CV02_IO01 có hàng nhưng không gửi được COx.");
+                SetStatus("M709 ON nhưng không gửi được COx.");
                 return;
             }
 
-            SetStatus("CV02_IO01 có hàng (M2302=1) → đã gửi COx.");
+            SetStatus("M709 ON → đã gửi COx.");
         }
 
         private void SetStatus(string message) => StatusChanged?.Invoke(message);

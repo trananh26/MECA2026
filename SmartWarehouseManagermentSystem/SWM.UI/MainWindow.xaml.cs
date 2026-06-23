@@ -152,7 +152,7 @@ namespace SWM.UI
             label.Foreground = brush;
         }
 
-        // C1x từ serial: lấy hàng IP01 → ô BF trống (khi M2300=1)
+        // C1x từ serial: lấy hàng IP01 → ô BF trống (khi M706=1)
         private void OnSerialImportRequested()
         {
             switch (_transportService.CreateImportCommand())

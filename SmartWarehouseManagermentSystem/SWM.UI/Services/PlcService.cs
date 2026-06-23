@@ -78,11 +78,14 @@ namespace SWM.UI.Services
         // Xóa cờ yêu cầu xuất từ HMI sau khi đã tạo lệnh
         public void ResetHmiOutputRequest() => SetDevice("M33", 0);
 
-        // IP01 có hàng trên băng tải (PLC M2300 = 1)
-        public bool IsInputPortFull() => GetDeviceInt("M2300") == 1;
+        // IP01 có hàng trên băng tải (PLC M706 = 1)
+        public bool IsInputPortFull() => GetDeviceInt("M706") == 1;
 
-        // CV02_IO01 có hàng (PLC M2302 = 1) — điều kiện gửi COx
-        public bool IsCv02Io01Full() => GetDeviceInt("M2302") == 1;
+        // CV02_IO01 có hàng (PLC M708 = 1)
+        public bool IsCv02Io01Full() => GetDeviceInt("M708") == 1;
+
+        // PLC bật M709 → SCADA gửi COx
+        public bool IsCoAckReady() => GetDeviceInt("M709") == 1;
 
         // CMx: quay băng tải nhập (CV02)
         public void StartConveyorRotation() => SetDevice("M701", 1);
