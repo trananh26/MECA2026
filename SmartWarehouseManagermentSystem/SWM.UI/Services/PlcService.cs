@@ -4,6 +4,7 @@ using SWM.Common;
 using SWM.UI.Config;
 using System;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Windows;
 
 namespace SWM.UI.Services
@@ -15,6 +16,8 @@ namespace SWM.UI.Services
     {
         private readonly ActUtlType _plc = new ActUtlType();
         private int _aliveToggle;
+        private Timer _m39ResetTimer;
+        private const int M39PulseResetMs = 5000;
 
         public string AgvId { get; } = WarehouseConstants.AgvId;
         public string IpAddress { get; }
@@ -115,11 +118,32 @@ namespace SWM.UI.Services
             if (!TryGetBufferSlotId(job, out int bufferSlotId, out int commandType))
                 return false;
                         
+            SetDevice("M39", 0);
             SetDevice("D502", commandType);
             SetDevice("D500", bufferSlotId);
             SetDevice("M39", 1);
-            SetDevice("M39", 0);
+            ScheduleM39Reset();
             return true;
+        }
+
+        private void ScheduleM39Reset()
+        {
+            _m39ResetTimer?.Dispose();
+            _m39ResetTimer = new Timer(
+                _ =>
+                {
+                    try
+                    {
+                        if (IsConnected)
+                            SetDevice("M39", 0);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                },
+                null,
+                M39PulseResetMs,
+                Timeout.Infinite);
         }
 
         internal static bool TryGetBufferSlotId(CurrentTransportCommand job, out int bufferSlotId, out int commandType)
@@ -152,6 +176,8 @@ namespace SWM.UI.Services
         {
             try
             {
+                _m39ResetTimer?.Dispose();
+                _m39ResetTimer = null;
                 _plc.Close();
                 IsConnected = false;
             }
