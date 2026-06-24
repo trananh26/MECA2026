@@ -43,7 +43,7 @@ namespace SWM.UI
         private readonly AGV_Slim[] _agvControls = new AGV_Slim[10000];
         private DataTable _mapRoutes;
 
-        private string _oldAgvLocation = "5";
+        private string _oldAgvLocation = "1";
         private int _agvX;
         private string _deleteJobId;
         private string _jobState;
@@ -104,7 +104,7 @@ namespace SWM.UI
             plcAliveTimer.Tick += (s, e) => _plcService.SendAlivePulse();
             plcAliveTimer.Start();
 
-            var monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+            var monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
             monitorTimer.Tick += (s, e) =>
             {
                 _plcMonitor.Poll();
@@ -332,7 +332,7 @@ namespace SWM.UI
 
                     TranslateTransform transform = new TranslateTransform();
                     _agvControls[agvId].RenderTransform = transform;
-                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 715, TimeSpan.FromSeconds(2)));
+                    transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(_agvX, agv.X - 700, TimeSpan.FromSeconds(2)));
                     transform.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(3, 3, TimeSpan.FromSeconds(2)));
                     _agvX = agv.X - 168;
 

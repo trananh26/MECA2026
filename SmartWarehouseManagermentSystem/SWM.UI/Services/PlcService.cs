@@ -17,7 +17,7 @@ namespace SWM.UI.Services
         private readonly ActUtlType _plc = new ActUtlType();
         private int _aliveToggle;
         private Timer _m39ResetTimer;
-        private const int M39PulseResetMs = 5000;
+        private const int M39PulseResetMs = 3000;
 
         public string AgvId { get; } = WarehouseConstants.AgvId;
         public string IpAddress { get; }
@@ -107,7 +107,7 @@ namespace SWM.UI.Services
         public int GetAgvLocation()
         {
             int raw = GetDeviceInt("D800");
-            return raw > 4 ? raw - 4 : raw;
+            return raw > 5 ? raw - 4 : raw;
         }
 
         public void SetDevice(string address, int value) => _plc.SetDevice(address, value);

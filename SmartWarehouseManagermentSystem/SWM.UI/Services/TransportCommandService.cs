@@ -2,6 +2,7 @@ using SWM.BL;
 using SWM.Common;
 using System;
 using System.Data;
+using System.Windows;
 
 namespace SWM.UI.Services
 {
@@ -166,10 +167,10 @@ namespace SWM.UI.Services
                 int location = _plc.GetAgvLocation();
                 int portSource = CurrentJob.CommandSourceID == WarehouseConstants.InputPortId
                     ? 1
-                    : 1 + int.Parse(CurrentJob.CommandSourceID.Substring(2, 1));
+                    : 1 + int.Parse(CurrentJob.CommandSourceID);
                 int portDest = CurrentJob.CommandDestID == WarehouseConstants.OutputPortId
                     ? 1
-                    : 1 + int.Parse(CurrentJob.CommandDestID.Substring(2, 1));
+                    : 1 + int.Parse(CurrentJob.CommandDestID);
 
                 if (location == portSource && CurrentJob.CommandStatus == "JOB START")
                 {
@@ -179,7 +180,7 @@ namespace SWM.UI.Services
                     NotifyLayoutChanged();
                     NotifyCommandsChanged();
                 }
-                else if ((location == portDest || completeState == 1) && CurrentJob.CommandStatus == "TRANSFERING DEST")
+                else if ((location == portDest && CurrentJob.CommandStatus == "TRANSFERING DEST") || completeState == 1)
                 {
                     CurrentJob.CommandStatus = "JOB COMPLETE";
                     CurrentJob.JobComplete = DateTime.Now;
@@ -190,8 +191,9 @@ namespace SWM.UI.Services
                     NotifyLayoutChanged();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
