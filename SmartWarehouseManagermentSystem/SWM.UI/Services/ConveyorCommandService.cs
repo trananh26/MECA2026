@@ -13,6 +13,7 @@ namespace SWM.UI.Services
         private readonly PlcService _plc;
         private int _waitingForCoAck;
         private int _m708StatusReported;
+        private bool _lastX30;
 
         public event Action<string> StatusChanged;
 
@@ -39,6 +40,25 @@ namespace SWM.UI.Services
                 return;
 
             SendCoAck();
+        }
+
+        // X30 OFF→ON: gửi CAPx một lần cho mỗi lần chuyển trạng thái
+        public void PollCaptureSignal()
+        {
+            if (!_plc.IsConnected)
+                return;
+
+            bool x30On = _plc.GetDeviceInt("X30") == 1;
+
+            if (x30On && !_lastX30)
+            {
+                if (_serial.SendMessage("CAP"))
+                    SetStatus("X30 ON → đã gửi CAPx.");
+                else
+                    SetStatus("X30 ON nhưng không gửi được CAPx.");
+            }
+
+            _lastX30 = x30On;
         }
 
         private void OnConveyorCommandReceived()

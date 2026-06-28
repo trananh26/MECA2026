@@ -85,6 +85,9 @@ namespace SWM.UI.Services
 
                 // CMx đã set M701 → gửi COx khi M709 ON (M708 báo có hàng)
                 _conveyor.PollPendingAck();
+
+                // X30 OFF→ON → gửi CAPx một lần cho mỗi lần đổi trạng thái
+                _conveyor.PollCaptureSignal();
             }
             catch (Exception)
             {

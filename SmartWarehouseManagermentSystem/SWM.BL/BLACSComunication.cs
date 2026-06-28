@@ -11,7 +11,7 @@ namespace SWM.BL
     {
         public static void UpdateOutputState(string strOutputState)
         {
-            string cmd = "Update Eqiupment Set State = @State Where BayID = 'MECA20242'";
+            string cmd = "Update Eqiupment Set State = @State Where BayID = 'MECA20262'";
             DLACSComunication.UpdateOutputState(cmd, strOutputState);
         }
     }
