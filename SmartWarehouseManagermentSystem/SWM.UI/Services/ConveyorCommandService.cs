@@ -42,20 +42,20 @@ namespace SWM.UI.Services
             SendCoAck();
         }
 
-        // X30 OFF→ON: gửi CAPx một lần cho mỗi lần chuyển trạng thái
+        // M710 OFF→ON: gửi CAPx một lần cho mỗi lần chuyển trạng thái
         public void PollCaptureSignal()
         {
             if (!_plc.IsConnected)
                 return;
 
-            bool x30On = _plc.GetDeviceInt("X30") == 1;
+            bool x30On = _plc.GetDeviceInt("M710") == 1;
 
             if (x30On && !_lastX30)
             {
                 if (_serial.SendMessage("CAP"))
-                    SetStatus("X30 ON → đã gửi CAPx.");
+                    SetStatus("M710 ON → đã gửi CAPx.");
                 else
-                    SetStatus("X30 ON nhưng không gửi được CAPx.");
+                    SetStatus("M710 ON nhưng không gửi được CAPx.");
             }
 
             _lastX30 = x30On;
