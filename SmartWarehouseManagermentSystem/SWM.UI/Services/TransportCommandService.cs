@@ -185,6 +185,10 @@ namespace SWM.UI.Services
                     CurrentJob.CommandStatus = "JOB COMPLETE";
                     CurrentJob.JobComplete = DateTime.Now;
                     BLTransportCommand.UpdateCommandStatus(CurrentJob);
+                    // Đảm bảo ô nguồn về EMPTY kể cả khi M3000=1 nhảy thẳng sang COMPLETE
+                    // (bỏ qua bước TRANSFERING DEST) — quan trọng cho lệnh xuất BF→OP01.
+                    BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");
+                    BLLayout.UpdateTrayID(CurrentJob.CommandSourceID, string.Empty);
                     BLLayout.UpdateBFStateByStep(CurrentJob.CommandDestID, "FULL");
                     BLLayout.UpdateTrayID(CurrentJob.CommandDestID, CurrentJob.TrayID);
                     NotifyCommandsChanged();

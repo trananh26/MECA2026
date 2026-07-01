@@ -104,7 +104,7 @@ namespace SWM.UI
             plcAliveTimer.Tick += (s, e) => _plcService.SendAlivePulse();
             plcAliveTimer.Start();
 
-            var monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
+            var monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             monitorTimer.Tick += (s, e) =>
             {
                 _plcMonitor.Poll();
