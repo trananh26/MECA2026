@@ -239,7 +239,7 @@ Hủy thủ công: chỉ khi trạng thái còn `JOB CREATE`.
 Chỉ cho phép:
 
 - **IP01 → ô BF** (nhập)
-- **Ô BF → OP01** (xuất)
+- **Ô BF → OP01** (xuất): đích OP01 được phép khi `FULLSTATE=FULL` (băng tải xuất đang có hàng)
 
 ---
 
