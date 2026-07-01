@@ -1,4 +1,5 @@
 ﻿using SWM.BL;
+using SWM.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -71,11 +72,11 @@ namespace SWM.UI
             {
                 MessageBox.Show("Không thể tạo lệnh vận chuyển từ ô chưa nguồn không có hàng. Vui lòng chọn ô chứa khác", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            else if(_DestState == "FULL")
+            else if (_DestState == "FULL" && _DestID != WarehouseConstants.OutputPortId)
             {
                 MessageBox.Show("Không thể tạo lệnh vận chuyển tới ô chứa đích đang có hàng. Vui lòng chọn ô chứa khác", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            else if(_DestID == "215")
+            else if (_DestID == WarehouseConstants.InputPortId)
             {
                 MessageBox.Show("Không thể tạo lệnh vận chuyển trả hàng tới băng tải Input. Vui lòng chọn ô chứa khác", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }

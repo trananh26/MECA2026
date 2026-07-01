@@ -21,6 +21,8 @@ namespace SWM.UI.Services
     {
         private readonly PlcService _plc;
         private int _oldOutputRequest;
+        private int _lastM3000 = -1;
+        private bool _m3000ReadyForComplete;
 
         public CurrentTransportCommand CurrentJob { get; } = new CurrentTransportCommand();
         public string AgvLocation { get; set; } = "2";
@@ -106,6 +108,13 @@ namespace SWM.UI.Services
 
                 string currentCommandId = dtCommand.Rows[0]["CommandID"].ToString();
                 string jobStatus = dtCommand.Rows[0]["CommandStatus"].ToString();
+
+                if (jobStatus == "JOB COMPLETE")
+                {
+                    ClearCurrentJob();
+                    return;
+                }
+
                 if (currentCommandId == CurrentJob.CommandID)
                     return;
 
@@ -145,6 +154,7 @@ namespace SWM.UI.Services
                     {
                         BLTransportCommand.UpdateCommandStatus(CurrentJob);
                         BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, CurrentJob.CommandID);
+                        ArmM3000Tracking();
                     }
 
                     NotifyCommandsChanged();
@@ -155,7 +165,7 @@ namespace SWM.UI.Services
             }
         }
 
-        // Đọc vị trí AGV (D800): tới nguồn → chuyển TRANSFERING; tới đích hoặc M3000=1 → JOB COMPLETE
+        // Đọc vị trí AGV (D800): tới nguồn → TRANSFERING; tới đích hoặc M3000 0→1 → COMPLETE
         public void UpdateCommandProgress()
         {
             try
@@ -163,7 +173,9 @@ namespace SWM.UI.Services
                 if (string.IsNullOrEmpty(CurrentJob.CommandSourceID) || string.IsNullOrEmpty(CurrentJob.CommandDestID))
                     return;
 
-                int completeState = _plc.GetDeviceInt("M3000");
+                if (CurrentJob.CommandStatus == "JOB COMPLETE")
+                    return;
+
                 int location = _plc.GetAgvLocation();
                 int portSource = CurrentJob.CommandSourceID == WarehouseConstants.InputPortId
                     ? 1
@@ -176,29 +188,63 @@ namespace SWM.UI.Services
                 {
                     CurrentJob.CommandStatus = "TRANSFERING DEST";
                     BLTransportCommand.UpdateCommandStatus(CurrentJob);
-                    BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");
+                    UpdateSourceStateAfterPickup();
                     NotifyLayoutChanged();
                     NotifyCommandsChanged();
                 }
-                else if ((location == portDest && CurrentJob.CommandStatus == "TRANSFERING DEST") || completeState == 1)
+                else if (ShouldCompleteJob(location, portDest))
                 {
-                    CurrentJob.CommandStatus = "JOB COMPLETE";
-                    CurrentJob.JobComplete = DateTime.Now;
-                    BLTransportCommand.UpdateCommandStatus(CurrentJob);
-                    // Đảm bảo ô nguồn về EMPTY kể cả khi M3000=1 nhảy thẳng sang COMPLETE
-                    // (bỏ qua bước TRANSFERING DEST) — quan trọng cho lệnh xuất BF→OP01.
-                    BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");
-                    BLLayout.UpdateTrayID(CurrentJob.CommandSourceID, string.Empty);
-                    BLLayout.UpdateBFStateByStep(CurrentJob.CommandDestID, "FULL");
-                    BLLayout.UpdateTrayID(CurrentJob.CommandDestID, CurrentJob.TrayID);
-                    NotifyCommandsChanged();
-                    NotifyLayoutChanged();
+                    CompleteCurrentJob();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        // PLC: M3000 giữ ON sau hoàn thành; M39 (lệnh mới) mới reset OFF → chỉ bắt cạnh lên 0→1
+        private void ArmM3000Tracking()
+        {
+            _lastM3000 = _plc.GetDeviceInt("M3000");
+            _m3000ReadyForComplete = _lastM3000 == 0;
+        }
+
+        private bool TryConsumeM3000CompletePulse()
+        {
+            int m3000 = _plc.GetDeviceInt("M3000");
+            if (m3000 == 0)
+                _m3000ReadyForComplete = true;
+
+            bool rising = _m3000ReadyForComplete && m3000 == 1 && _lastM3000 == 0;
+            _lastM3000 = m3000;
+            return rising;
+        }
+
+        private bool ShouldCompleteJob(int location, int portDest)
+        {
+            if (CurrentJob.CommandStatus == "TRANSFERING DEST" && location == portDest)
+                return true;
+
+            if (CurrentJob.CommandStatus != "JOB START" && CurrentJob.CommandStatus != "TRANSFERING DEST")
+                return false;
+
+            return TryConsumeM3000CompletePulse();
+        }
+
+        private void CompleteCurrentJob()
+        {
+            CurrentJob.CommandStatus = "JOB COMPLETE";
+            CurrentJob.JobComplete = DateTime.Now;
+            BLTransportCommand.UpdateCommandStatus(CurrentJob);
+            UpdateSourceStateAfterPickup();
+            BLLayout.UpdateTrayID(CurrentJob.CommandSourceID, string.Empty);
+            BLLayout.UpdateBFStateByStep(CurrentJob.CommandDestID, "FULL");
+            BLLayout.UpdateTrayID(CurrentJob.CommandDestID, CurrentJob.TrayID);
+            BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, string.Empty);
+            ClearCurrentJob();
+            NotifyCommandsChanged();
+            NotifyLayoutChanged();
         }
 
         public void DeleteJob(string commandId, DateTime jobCreateTime, string jobState)
@@ -231,10 +277,44 @@ namespace SWM.UI.Services
 
             BLTransportCommand.UpdateCommandStatus(CurrentJob);
             BLUpdateAGVStatus.UpdateAGVCommand(_plc.AgvId, CurrentJob.CommandID);
+            ArmM3000Tracking();
         }
 
         private static bool IsImportJob(CurrentTransportCommand job) =>
             job.CommandSourceID == WarehouseConstants.InputPortId;
+
+        // IP01: đồng bộ theo M706; ô BF: EMPTY sau khi AGV lấy hàng
+        private void UpdateSourceStateAfterPickup()
+        {
+            if (CurrentJob.CommandSourceID == WarehouseConstants.InputPortId)
+            {
+                string state = _plc.IsInputPortFull() ? "FULL" : "EMPTY";
+                BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, state);
+            }
+            else
+            {
+                BLLayout.UpdateBFStateByStep(CurrentJob.CommandSourceID, "EMPTY");
+            }
+        }
+
+        private void ClearCurrentJob()
+        {
+            CurrentJob.AGVID = null;
+            CurrentJob.STKID = null;
+            CurrentJob.CommandID = null;
+            CurrentJob.TrayID = null;
+            CurrentJob.ProductID = null;
+            CurrentJob.CommandSource = null;
+            CurrentJob.CommandDest = null;
+            CurrentJob.CommandSourceID = null;
+            CurrentJob.CommandDestID = null;
+            CurrentJob.CommandStatus = null;
+            CurrentJob.JobCreat = default;
+            CurrentJob.JobAssign = default;
+            CurrentJob.JobComplete = default;
+            _lastM3000 = -1;
+            _m3000ReadyForComplete = false;
+        }
 
         private void CancelPendingJob(string commandId, DataRow commandRow)
         {
